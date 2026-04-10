@@ -1,3 +1,5 @@
+# URL: 지금 열려있는 최신 번역 PR 선택 (04/10 기준)
+# https://github.com/PyTorchKorea/tutorials-kr/pull/1059
 
 ## poc.terms.kr 데이터 구조
 
