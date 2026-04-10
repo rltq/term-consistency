@@ -134,11 +134,16 @@ def main():
                     # 반환: 현재 / 변경 / 근거 이렇게 최소 세개
                     # 한국어까지 번역매칭을 하는건 비효율적. 번역어를 교정해야하는데 번역어가 어떻게 다르게 들어갔을지 알 방법 X. 
                     # 한 문장을 여러 문장으로 분절해 번역하는 경우도 있어 Idx 기반 탐색 효율 X
-                    en_diff_lines = en_text.split("# ")
+                    en_diff_lines = en_text.split("#")
                     en_review_sentences, kr_review_sentences = "", ""
                     for diff_line in en_diff_lines:
                         if term in diff_line:
                             en_review_sentences = diff_line
+                    for diff_line in kr_text.split("#"):
+                        if term in diff_line:
+                            kr_review_sentences = diff_line
+                        else:
+                            kr_review_sentences = "[ERR] " + diff_line
 
                     unmatched.append(
                         {
@@ -146,6 +151,7 @@ def main():
                             "origin": term,
                             "expected": allowed,
                             "review_en": en_review_sentences,
+                            "review_kr": kr_review_sentences,
                             "hunks": (en_text, kr_text),
                         }
                     )
@@ -170,6 +176,8 @@ def main():
             elif k == "expected":
                 print(f"{k} -> {v}")
             elif k == "review_en":
+                print(f"{k} ==> {v}")
+            elif k == "review_kr":
                 print(f"{k} ==> {v}")
 
 
