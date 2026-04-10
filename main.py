@@ -1,12 +1,24 @@
 import os
 import re
 import json
+import argparse
 
 import requests
 from unidiff import PatchSet
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-pr", "--pr-url", type=str, dest="pr_url", default = "") 
+parser.add_argument(
+    "-term",
+    "--term-url",
+    type=str,
+    dest="term_url",
+    default="https://poc.terms.kr/data/",
+)
 
-def create_terms(base_url: str = "https://poc.terms.kr/data/") -> list:
+args = parser.parse_args()
+
+def create_terms(base_url: str = args.term_url) -> list:
     # Create term list
     index = requests.get(base_url + "index.json").json()  # ["a.json", "b.json", ...]
     all_terms = []
@@ -18,7 +30,7 @@ def create_terms(base_url: str = "https://poc.terms.kr/data/") -> list:
     return all_terms
 
 
-def create_lookup(all_terms: list):
+def create_lookup(all_terms: list) -> dict:
     term_lookup = {}
     for entry in all_terms:
         term_lookup[entry["term"].lower()] = entry["meanings"]
@@ -26,22 +38,24 @@ def create_lookup(all_terms: list):
     return term_lookup
 
 
-def normalize_ko(text):
-    return text.replace(" ", "")
-
-
-def strip_text(text):
-    return re.sub(r"`{1,3}[^`]+`{1,3}", "", text)
-
-
-def load_diff_text(pr_url: str = "'") -> str:
+def load_diff_text(pr_url: str = args.pr_url) -> str:
     diff_url = pr_url + ".diff"
     diff_text = requests.get(diff_url).text
     return diff_text
 
 
+def normalize_ko(text) -> str:
+    return text.replace(" ", "")
+
+
+def strip_text(text) -> str:
+    return re.sub(r"`{1,3}[^`]+`{1,3}", "", text)
+
+
 def main():
-    term_kr_url = "https://poc.terms.kr/data/"  # args 기본값으로
+    term_kr_url = args.term_url  # args 기본값으로
+    pr_url = args.pr_url  # 'https://github.com/PyTorchKorea/tutorials-kr/pull/1056'
+    diff_text = load_diff_text(pr_url)
 
     # Load terms
     # terms_all.json 이 없으면 load - 로컬환경용
@@ -53,20 +67,12 @@ def main():
         with open("terms_all.json", "r") as f:
             all_terms = json.load(f)
     all_terms.sort(key=lambda x: len(x["term"]), reverse=True)
-
     term_lookup = create_lookup(all_terms)
-
-    # 내림차순 정렬. 긴 term부터 정렬하여 activation function -> activation 둘을 헷갈리지 않을 수 있다.
-
-    pr_url = "https://github.com/PyTorchKorea/tutorials-kr/pull/1059"
-    # pr_url = 'https://github.com/PyTorchKorea/tutorials-kr/pull/1056'
-    diff_text = load_diff_text(pr_url)
 
     ## 파싱 - unidiff 객체
     patch = PatchSet(diff_text)
     # 순회하여 매칭하므로 nested dict 보다는 flat records
     # `#` 로 시작하면 문서주석, 그렇지 않으면 코드
-
     diffs: list[dict] = []
     for file in patch:
         for idx, hunk in enumerate(file):
@@ -93,12 +99,6 @@ def main():
                 }
             )
 
-    # TODO issue #6: https://github.com/rltq/term-consistency/issues/6
-    # 1. 출력 포맷 맞추어 관리
-    # 2. hunk에서 용어 불일치 탐지되었을 시 후가공. 오류 자체가 많지 않을거라는 전제 (그정도로 많으면 PR자체를 리젝해야 함)
-    #   - AS-IS: hunk 단위로 matched / unmatched 딕셔너리 속성이 생성
-    #   - TO-BE: 오류가 발생한 문장을 근거로 제시, 가능하다면 그 근거의 이유도 제시
-    #  2-1 후가공: 인덱스로 조회해야하나: 한 문장이 여러문장으로 분절되는 경우 있으므로 진행 X
     matched, unmatched = [], []
     for diff in diffs:
         for term in term_lookup.keys():
@@ -132,6 +132,8 @@ def main():
                     )
                 elif len(kr_text) > 0:  # 하드코딩 : 조건 분기 후에 조정
                     # 반환: 현재 / 변경 / 근거 이렇게 최소 세개
+                    # 한국어까지 번역매칭을 하는건 비효율적. 번역어를 교정해야하는데 번역어가 어떻게 다르게 들어갔을지 알 방법 X. 
+                    # 한 문장을 여러 문장으로 분절해 번역하는 경우도 있어 Idx 기반 탐색 효율 X
                     en_diff_lines = en_text.split("# ")
                     en_review_sentences, kr_review_sentences = "", ""
                     for diff_line in en_diff_lines:
@@ -144,31 +146,21 @@ def main():
                             "origin": term,
                             "expected": allowed,
                             "review_en": en_review_sentences,
-                            # "review_kr" : kr_review_sentences,      # 한국어까지 번역매칭을 하는건 비효율적. 번역어를 교정해야하는데 번역어가 어떻게 다르게 들어갔을지 알 방법 X. 한 문장을 여러 문장으로 분절해 번역하는 경우도 있어 Idx 기반 탐색 효율 X
                             "hunks": (en_text, kr_text),
                         }
                     )
-                    break
-                    # break
-            # break
 
     # 검토용 출력
-    # for items in matched:
-    #     for k, v in items.items():
-    #         if k == "file": print(f"\n{k} -> {v}")
-    #         elif k == "origin": print(f"{k} -> {v}")
-    #         elif k == "expected": print(f"{k} -> {v}")
-    #         elif k == "matched" or "matched(brace)":
-    #             print(f"{k}\n\t{v}")
-    # print("*"*50)
+    for items in matched:
+        for k, v in items.items():
+            if k == "file": print(f"\n{k} -> {v}")
+            elif k == "origin": print(f"{k} -> {v}")
+            elif k == "expected": print(f"{k} -> {v}")
+            elif k == "matched" or "matched(brace)":
+                print(f"{k}\n\t{v}")
+    
+    print("*"*50)
 
-    """
-    # 1059 샘플 (TODO 실제 검증 가능한 데이터로 테스트 필)
-    file -> intermediate_source/per_sample_grads.py
-    origin -> gradient
-    expected -> ['그래디언트']
-    review_en==>Finally, let's used our transformed function to compute per-sample-gradients: 
-    """
     for items in unmatched:
         for k, v in items.items():
             if k == "file":
@@ -178,8 +170,7 @@ def main():
             elif k == "expected":
                 print(f"{k} -> {v}")
             elif k == "review_en":
-                print(f"{k}==>{v}")
-            # elif k == "review_kr": print(f"{k}==>{v}")
+                print(f"{k} ==> {v}")
 
 
 if __name__ == "__main__":
