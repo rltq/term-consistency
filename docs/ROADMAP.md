@@ -10,9 +10,9 @@
 
 ## 현재 위치
 
-> **v0.1.0 완료 / v0.2.0 시작 직전**
+> **v0.2.0 진행 중 — 작업 1 (모듈 분리) 완료, 작업 2 (정식 픽스처 인프라) 대기**
 >
-> 다음 작업: 모듈 분리 + 회귀 픽스처 + v0.1 버그 수정 (normalize_ko, [ERR], 중복 탐지)
+> 다음 작업: 정식 픽스처 인프라 (pytest 도입, 추가 PR 스냅샷) + v0.1 버그 수정 (normalize_ko, [ERR], 중복 탐지)
 
 이 줄은 마일스톤이 바뀔 때마다 갱신한다.
 
@@ -55,16 +55,18 @@
 ### 작업
 
 1. **모듈 분리** (이슈 #7 미완성분 마무리)
+   - **선결**: 작업 2 의 pre-split 스냅샷 최소 1건 — 리팩토링 전후 동작 동일성 (diff 0) 검증 기준.
    - `main.py` 를 3덩이로 쪼갠다: `parse_diff(diff_text) → segments`, `find_terms(segments, lookup) → findings`, `format(findings) → str`.
    - 모듈 레벨 `argparse` 제거 → `main()` 안으로.
    - 각 함수는 단위 테스트 가능한 형태로 (입력/출력이 명확).
-   - 관련 이슈: 새 이슈 (#7 의 후속, TBD).
+   - 관련 이슈: #13 (#7 의 후속).
 
 2. **회귀 픽스처 4-5건 박제**
+   - **작업 1 의 선행 조건**: 작업 1 실행 전 최소 1건 박제 필요. 정식 인프라 (pytest, 다수 PR) 는 작업 1 완료 후 확장.
    - PR `.diff` 4-5건을 `tests/fixtures/` 에 저장 (네트워크 의존 제거).
    - 그 시점의 `terms_all.json` 도 같이 박제.
    - 현재 (버그 있는) 출력을 그대로 `tests/snapshots/` 에 저장 → 1차 commit `test: capture pre-split snapshots`.
-   - 픽스처 후보: PR #945, #922, #923, #1059 (이미 `log/` 에 자료가 있는 것들).
+   - 픽스처 후보: PR #945 (pre-split 스냅샷 이미 박제됨 — `tests/snapshots/pr_945.txt`), PR #1052 (`log/` 에 자료 있음, 노이즈 있어 편입 전 검토 필요). PR #1059 는 원문 측 문제로 스냅샷 기준선 부적합.
    - 자세한 패턴은 [TESTING.md](./TESTING.md).
    - 관련 이슈: 새 이슈 (TBD).
 
