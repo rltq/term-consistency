@@ -17,26 +17,31 @@ def create_terms(base_url: str = "https://poc.terms.kr/data/") -> list:
 
     return all_terms
 
-def create_lookup(all_terms:list):
+
+def create_lookup(all_terms: list):
     term_lookup = {}
     for entry in all_terms:
         term_lookup[entry["term"].lower()] = entry["meanings"]
 
     return term_lookup
 
+
 def normalize_ko(text):
     return text.replace(" ", "")
 
-def strip_text(text):
-    return re.sub(r'`{1,3}[^`]+`{1,3}', '', text)
 
-def load_diff_text(pr_url:str = "'") -> str:
-    diff_url = pr_url + '.diff'
+def strip_text(text):
+    return re.sub(r"`{1,3}[^`]+`{1,3}", "", text)
+
+
+def load_diff_text(pr_url: str = "'") -> str:
+    diff_url = pr_url + ".diff"
     diff_text = requests.get(diff_url).text
     return diff_text
 
+
 def main():
-    term_kr_url = "https://poc.terms.kr/data/"      # args 기본값으로
+    term_kr_url = "https://poc.terms.kr/data/"  # args 기본값으로
 
     # Load terms
     # terms_all.json 이 없으면 load - 로컬환경용
@@ -47,6 +52,7 @@ def main():
     else:
         with open("terms_all.json", "r") as f:
             all_terms = json.load(f)
+    all_terms.sort(key=lambda x: len(x["term"]), reverse=True)
 
     term_lookup = create_lookup(all_terms)
 
@@ -61,18 +67,24 @@ def main():
     # 순회하여 매칭하므로 nested dict 보다는 flat records
     # `#` 로 시작하면 문서주석, 그렇지 않으면 코드
 
-    diffs:list[dict] = []
+    diffs: list[dict] = []
     for file in patch:
         for idx, hunk in enumerate(file):
             kr_text = " ".join(
-                [line.value.strip() for line in hunk
-                    if line.is_added and line.value.strip().startswith("#")]
-            )   # is_added
+                [
+                    line.value.strip()
+                    for line in hunk
+                    if line.is_added and line.value.strip().startswith("#")
+                ]
+            )  # is_added
             en_text = " ".join(
-                [line.value.strip() for line in hunk
-                    if line.is_removed and line.value.strip().startswith("#")]
-            )   # is_removed
-            diffs.append (
+                [
+                    line.value.strip()
+                    for line in hunk
+                    if line.is_removed and line.value.strip().startswith("#")
+                ]
+            )  # is_removed
+            diffs.append(
                 {
                     "file": file.path,
                     "idx": idx,
@@ -90,14 +102,16 @@ def main():
     matched, unmatched = [], []
     for diff in diffs:
         for term in term_lookup.keys():
-            pattern = re.compile(r'\b' + re.escape(term) + r'\b', re.IGNORECASE)
-            brace_pattern = re.compile(r'[가-힣]+\(' + re.escape(term) + r'\)', re.IGNORECASE)
-            kr_text, en_text = strip_text(diff['kr']), strip_text(diff['en'])
+            pattern = re.compile(r"\b" + re.escape(term) + r"\b", re.IGNORECASE)
+            brace_pattern = re.compile(
+                r"[가-힣]+\(" + re.escape(term) + r"\)", re.IGNORECASE
+            )
+            kr_text, en_text = strip_text(diff["kr"]), strip_text(diff["en"])
             if pattern.search(en_text):
                 # 용어집: korean="요구 사항", synonyms=["필수 요건"]
                 # 허용 목록: ["요구사항", "필수요건"]  (공백 제거 후)
                 meanings = term_lookup[term]
-                allowed = [meaning["korean"]  for meaning in meanings]      # 공백제거 전
+                allowed = [meaning["korean"] for meaning in meanings]  # 공백제거 전
                 if brace_pattern.search(kr_text):
                     matched.append(
                         {
@@ -116,28 +130,27 @@ def main():
                             "matched": (en_text, kr_text),
                         }
                     )
-                elif len(kr_text) > 0:      # 하드코딩 : 조건 분기 후에 조정
+                elif len(kr_text) > 0:  # 하드코딩 : 조건 분기 후에 조정
                     # 반환: 현재 / 변경 / 근거 이렇게 최소 세개
                     en_diff_lines = en_text.split("# ")
-                    en_review_sentences, kr_review_sentences = '', ''
+                    en_review_sentences, kr_review_sentences = "", ""
                     for diff_line in en_diff_lines:
                         if term in diff_line:
-                            en_review_sentences = diff_line 
-                    
+                            en_review_sentences = diff_line
+
                     unmatched.append(
                         {
                             "file": diff["file"],
                             "origin": term,
                             "expected": allowed,
-                            "review_en" : en_review_sentences,
+                            "review_en": en_review_sentences,
                             # "review_kr" : kr_review_sentences,      # 한국어까지 번역매칭을 하는건 비효율적. 번역어를 교정해야하는데 번역어가 어떻게 다르게 들어갔을지 알 방법 X. 한 문장을 여러 문장으로 분절해 번역하는 경우도 있어 Idx 기반 탐색 효율 X
-                            "hunks": (en_text, kr_text)
+                            "hunks": (en_text, kr_text),
                         }
                     )
                     break
                     # break
             # break
-
 
     # 검토용 출력
     # for items in matched:
@@ -158,11 +171,16 @@ def main():
     """
     for items in unmatched:
         for k, v in items.items():
-            if k == "file": print(f"\n{k} -> {v}")
-            elif k == "origin": print(f"{k} -> {v}")
-            elif k == "expected": print(f"{k} -> {v}")
-            elif k == "review_en": print(f"{k}==>{v}")
+            if k == "file":
+                print(f"\n{k} -> {v}")
+            elif k == "origin":
+                print(f"{k} -> {v}")
+            elif k == "expected":
+                print(f"{k} -> {v}")
+            elif k == "review_en":
+                print(f"{k}==>{v}")
             # elif k == "review_kr": print(f"{k}==>{v}")
+
 
 if __name__ == "__main__":
     main()
