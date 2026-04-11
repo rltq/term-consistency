@@ -10,7 +10,7 @@
 
 회귀 픽스처라는 용어가 생소할 수 있으므로 이 문서에서 사용하는 4개 용어를 먼저 정의한다.
 
-**회귀 픽스처 (regression fixture).** 박제된 *입력*. 이 프로젝트에선 PR `.diff` 텍스트와 그 시점의 `terms_all.json`. `tests/fixtures/` 에 저장.
+**회귀 픽스처 (regression fixture).** 박제된 *입력*. 이 프로젝트에선 PR `.diff` 텍스트와 그 시점의 `terms_v0.1.0.json` (버전 핀 네이밍). `tests/fixtures/` 에 저장.
 
 **스냅샷 (snapshot).** 박제된 *기대 출력*. 어느 시점에 "이게 옳다" 또는 "이 시점의 동작을 박제하겠다" 라고 동의된 도구의 출력. `tests/snapshots/` 에 저장.
 
