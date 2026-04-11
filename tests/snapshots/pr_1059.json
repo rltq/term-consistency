@@ -102,7 +102,7 @@
       "# 우선,  의 상태를 매개변수와 버퍼, 두 딕셔너리로 추출해야 합니다.# 일반적인 PyTorch autograd(예: Tensor.backward(), torch.autograd.grad)를# 사용하지 않을 것이기 때문입니다."
     ],
     "origin": "autograd",
-    "review_en": "",
+    "review_en": "# First, let’s extract the state from  into two dictionaries,# parameters and buffers. We'll be detaching them because we won't use# regular PyTorch autograd (e.g. Tensor.backward(), torch.autograd.grad).",
     "review_kr": "[ERR] # 우선,  의 상태를 매개변수와 버퍼, 두 딕셔너리로 추출해야 합니다.# 일반적인 PyTorch autograd(예: Tensor.backward(), torch.autograd.grad)를# 사용하지 않을 것이기 때문입니다."
   },
   {
@@ -115,7 +115,7 @@
       "# 우선,  의 상태를 매개변수와 버퍼, 두 딕셔너리로 추출해야 합니다.# 일반적인 PyTorch autograd(예: Tensor.backward(), torch.autograd.grad)를# 사용하지 않을 것이기 때문입니다."
     ],
     "origin": "tensor",
-    "review_en": "",
+    "review_en": "# First, let’s extract the state from  into two dictionaries,# parameters and buffers. We'll be detaching them because we won't use# regular PyTorch autograd (e.g. Tensor.backward(), torch.autograd.grad).",
     "review_kr": "[ERR] # 우선,  의 상태를 매개변수와 버퍼, 두 딕셔너리로 추출해야 합니다.# 일반적인 PyTorch autograd(예: Tensor.backward(), torch.autograd.grad)를# 사용하지 않을 것이기 때문입니다."
   },
   {
