@@ -91,3 +91,33 @@ def load_glossary(repo_id: str) -> dict[str, list[dict]]:
         return {}
     with open(_DATA_DIR / filename, encoding="utf-8") as f:
         return json.load(f)
+
+
+def merge_lookups(
+    repo_overrides: dict[str, list[dict]],
+    terms_kr: dict[str, list[dict]],
+) -> dict[str, list[dict]]:
+    """repo override 우선 머지.
+
+    같은 키가 양쪽에 존재하면 repo 가 terms.kr 을 **완전 대체** 한다
+    (meaning list 병합 아님). 이유: "레포별 용어집을 상위 원칙으로
+    존중" 이라는 정책상, repo 가 "gradient → 변화도" 라고 선언하면
+    terms.kr 의 "그라디언트" 는 더 이상 허용 답이 아니다.
+
+    terms.kr 측 meaning 에는 ``_authority="terms.kr"`` 태그를 copy 로
+    부여한다 (원본 dict in-place 변이 회피). repo 측은 이미
+    ``_authority="repo"`` 로 태그되어 JSON 에 저장되므로 그대로 사용.
+
+    find_terms 의 #8 중복 탐지 로직이 ``term_lookup`` 을 ``len(key)``
+    내림차순으로 가정하므로 반환 dict 도 해당 순서로 정렬한다. repo
+    override 가 새 키를 삽입하면 기존 terms.kr 의 정렬이 깨질 수 있어
+    merge 시점에 재정렬 — 이 순서 계약이 깨지면 #8 회귀가 즉시 발생.
+    """
+    merged: dict[str, list[dict]] = {}
+    for k, meanings in terms_kr.items():
+        if k in repo_overrides:
+            continue
+        merged[k] = [{**m, "_authority": "terms.kr"} for m in meanings]
+    for k, meanings in repo_overrides.items():
+        merged[k] = meanings
+    return dict(sorted(merged.items(), key=lambda kv: len(kv[0]), reverse=True))
