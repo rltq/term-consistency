@@ -10,10 +10,10 @@
 
 ## 현재 위치
 
-> **v0.2.0 완료 — v0.3.0 작업 0 (유닛 테스트 레이어 보강) 대기**
+> **v0.3.0 작업 0 완료 — 작업 1 (레포별 용어집 어댑터) 대기**
 >
-> v0.2 완료: 모듈 분리 (`main.py` → `term_consistency/`) + 회귀 픽스처 4건 + post-split 회귀 테스트 + normalize_ko 대칭 복구 (#16) + [ERR] 비대칭 수정 (#10) + 중복 탐지 수정 (#8) + `tests/test_match.py` 단위 테스트 seed
-> 다음 작업: v0.3.0 작업 0 — `find_terms` 분기 전체를 유닛 테스트로 커버 (override 도입 선결)
+> v0.3 작업 0: `match.py` 분기 계약 박제. `find_terms` 의 모든 분기 (matched / brace / `[ERR]` leak / 일반 unmatched / 중복 탐지 skip / kr 빈 문자열 / word boundary / case-insensitive) + 헬퍼 (`normalize_ko`, `strip_text`) 경계 + `INCLUDE_SYNONYMS` 훅 (SCOPE 제외 6 의 토글 안전망) 을 유닛 테스트로 고정. 신규 24건 추가, seed 4 + 스냅샷 4 와 합쳐 32건 통과.
+> 다음 작업: v0.3.0 작업 1 — pytorch-kr 자체 용어집 어댑터 도입.
 
 이 줄은 마일스톤이 바뀔 때마다 갱신한다.
 
