@@ -36,7 +36,7 @@ term-consistency 는 한국어 번역 PR 의 용어를 terms.kr 의 권장 번�
 
 ### 1. 드리프트 체크
 
-세션 시작 시 git log (마지막 `docs:` 커밋 이후) vs 다음 항목들 비교:
+세션 시작 시 `main` 의 git log (마지막 `docs:` 커밋 이후) vs 다음 항목들 비교:
 - ROADMAP 의 "현재 위치" 줄
 - ROADMAP 의 현재 마일스톤 DoD 체크박스
 - SCOPE 의 버전 스탬프 + 제외 항목 상태
@@ -57,9 +57,9 @@ read/inspect (Read/Glob/Grep/git status·log·diff/read-only API) 는 자유.
 
 ### 4. 브랜치 정책
 
-- 일상 드리프트 sync: `claude/sync` 장수명 브랜치, 매 commit 전 main 에 rebase, PR 안 만듦.
-- Feature 작업 (초기 docs 셋업, 기능 추가, 큰 리팩토링): 별도 단명 feature branch (`docs/...`, `feat/...`).
-- main 에 직접 commit 안 함.
+- 일상 드리프트 sync (docs-only): `main` 에 직접 commit. 허용 경로는 `docs/`, `CLAUDE.md`, `README.md` 한정.
+- Feature 작업 (초기 docs 셋업, 기능 추가, 큰 리팩토링): 별도 단명 feature branch (`docs/...`, `feat/...`), PR 경유.
+- 위 두 허용 경로를 벗어나는 모든 변경은 **main 에 직접 commit 금지** — 반드시 feature branch + PR.
 
 ---
 
