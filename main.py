@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import argparse
 
@@ -6,6 +7,18 @@ from term_consistency.io import load_diff_text, create_terms, create_lookup
 from term_consistency.parse import parse_diff
 from term_consistency.match import find_terms
 from term_consistency.format import format_findings
+
+
+def load_terms(term_kr_url: str, terms_file_path: str = "terms_all.json") -> list:
+    if not os.path.exists(terms_file_path):
+        all_terms = create_terms(term_kr_url)
+        with open(terms_file_path, "w") as f:
+            json.dump(all_terms, f, ensure_ascii=False)
+    else:
+        with open(terms_file_path, "r") as f:
+            all_terms = json.load(f)
+    all_terms.sort(key=lambda x: len(x["term"]), reverse=True)
+    return all_terms
 
 
 def main():
@@ -31,7 +44,7 @@ def main():
 
     segments = parse_diff(diff_text)
     matched, unmatched = find_terms(segments, term_lookup)
-    print(format_findings(matched, unmatched), end="")
+    json.dump(unmatched, sys.stdout, ensure_ascii=False, sort_keys=True, indent=2)
 
 
 if __name__ == "__main__":
