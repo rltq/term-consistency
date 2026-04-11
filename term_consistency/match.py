@@ -21,13 +21,24 @@ def find_terms(
     matched, unmatched = [], []
     for diff in segments:
         kr_text, en_text = strip_text(diff["kr"]), strip_text(diff["en"])
+        # 세그먼트 단위 인터벌 버퍼. term_lookup 은 len 내림차순 정렬되어 있어
+        # 긴 용어가 먼저 처리된다. 짧은 용어의 모든 occurrence 가 이미 처리된
+        # 긴 용어의 인터벌에 포함되면 그 term 은 해당 세그먼트에서 스킵.
+        # 이슈 #8: "gradient accumulation" 안의 "gradient" 같은 중복 탐지 방지.
+        consumed: list[tuple[int, int]] = []
         for term in term_lookup.keys():
             term = strip_text(term)
             pattern = re.compile(r"\b" + re.escape(term) + r"\b", re.IGNORECASE)
             brace_pattern = re.compile(
                 r"[가-힣]+\(" + re.escape(term) + r"\)", re.IGNORECASE
             )
-            if pattern.search(en_text):
+            spans = [m.span() for m in pattern.finditer(en_text)]
+            effective = [
+                s for s in spans
+                if not any(c[0] <= s[0] and s[1] <= c[1] for c in consumed)
+            ]
+            if effective:
+                consumed.extend(effective)
                 # allowed: 용어집 원문 형태 — 출력용 (expected 필드). 사람 읽기 기준.
                 # allowed_normalized: 공백 제거 형태 — 비교용. 한국어 본문이
                 # normalize_ko 로 공백 제거되므로 포함 비교 대칭을 위해 필요.
