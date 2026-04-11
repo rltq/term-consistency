@@ -1,32 +1,6 @@
 [
   {
     "expected": [
-      "혼합 정밀도"
-    ],
-    "file": "recipes_source/recipes/amp_recipe.py",
-    "hunks": [
-      "# A simple network# ----------------# The following sequence of linear layers and ReLUs should show a speedup with mixed precision.",
-      "# 간단한 신경망# -----------# 다음과 같은 선형 계층과 ReLU 연산의 연속은 혼합 정밀도를 사용했을 때# 성능 향상을 보여줄 수 있습니다."
-    ],
-    "origin": "mixed precision",
-    "review_en": "# A simple network# ----------------# The following sequence of linear layers and ReLUs should show a speedup with mixed precision.",
-    "review_kr": "# 간단한 신경망# -----------# 다음과 같은 선형 계층과 ReLU 연산의 연속은 혼합 정밀도를 사용했을 때# 성능 향상을 보여줄 수 있습니다."
-  },
-  {
-    "expected": [
-      "혼합 정밀도"
-    ],
-    "file": "recipes_source/recipes/amp_recipe.py",
-    "hunks": [
-      "# , , , and  are chosen to be large enough to saturate the GPU with work.# Typically, mixed precision provides the greatest speedup when the GPU is saturated.# Small networks may be CPU bound, in which case mixed precision won't improve performance.# Sizes are also chosen such that linear layers' participating dimensions are multiples of 8,# to permit Tensor Core usage on Tensor Core-capable GPUs (see :ref: below).",
-      "# , , , 그리고  는# GPU에 충분한 작업량을 부여하기 위해 크게 설정했습니다. 일반적으로 GPU가 충분히# 사용될 때 혼합 정밀도가 가장 큰 성능 향상을 제공합니다. 작은 신경망은 CPU에 의해# 제약을 받을 수 있으며, 이 경우 혼합 정밀도는 성능을 향상시키지 못할 수 있습니다.# 또한, 선형 계층에서 사용되는 차원들은 8의 배수로 설정되어 Tensor Core를# 지원하는 GPU에서 Tensor Core를 사용할 수 있게 구성되었습니다.# (아래 :ref: 참조)"
-    ],
-    "origin": "mixed precision",
-    "review_en": "# , , , and  are chosen to be large enough to saturate the GPU with work.# Typically, mixed precision provides the greatest speedup when the GPU is saturated.# Small networks may be CPU bound, in which case mixed precision won't improve performance.# Sizes are also chosen such that linear layers' participating dimensions are multiples of 8,# to permit Tensor Core usage on Tensor Core-capable GPUs (see :ref: below).",
-    "review_kr": "# , , , 그리고  는# GPU에 충분한 작업량을 부여하기 위해 크게 설정했습니다. 일반적으로 GPU가 충분히# 사용될 때 혼합 정밀도가 가장 큰 성능 향상을 제공합니다. 작은 신경망은 CPU에 의해# 제약을 받을 수 있으며, 이 경우 혼합 정밀도는 성능을 향상시키지 못할 수 있습니다.# 또한, 선형 계층에서 사용되는 차원들은 8의 배수로 설정되어 Tensor Core를# 지원하는 GPU에서 Tensor Core를 사용할 수 있게 구성되었습니다.# (아래 :ref: 참조)"
-  },
-  {
-    "expected": [
       "텐서"
     ],
     "file": "recipes_source/recipes/amp_recipe.py",
@@ -37,45 +11,6 @@
     "origin": "tensor",
     "review_en": "",
     "review_kr": "[ERR] # , , , 그리고  는# GPU에 충분한 작업량을 부여하기 위해 크게 설정했습니다. 일반적으로 GPU가 충분히# 사용될 때 혼합 정밀도가 가장 큰 성능 향상을 제공합니다. 작은 신경망은 CPU에 의해# 제약을 받을 수 있으며, 이 경우 혼합 정밀도는 성능을 향상시키지 못할 수 있습니다.# 또한, 선형 계층에서 사용되는 차원들은 8의 배수로 설정되어 Tensor Core를# 지원하는 GPU에서 Tensor Core를 사용할 수 있게 구성되었습니다.# (아래 :ref: 참조)"
-  },
-  {
-    "expected": [
-      "혼합 정밀도"
-    ],
-    "file": "recipes_source/recipes/amp_recipe.py",
-    "hunks": [
-      "# Exercise: Vary participating sizes and see how the mixed precision speedup changes.",
-      "# 연습 문제: 사용할 사이즈를 다양하게 설정하여 혼합 정밀도 사용 시 성능 향상이 어떻게 달라지는지 확인해 보세요."
-    ],
-    "origin": "mixed precision",
-    "review_en": "# Exercise: Vary participating sizes and see how the mixed precision speedup changes.",
-    "review_kr": "# 연습 문제: 사용할 사이즈를 다양하게 설정하여 혼합 정밀도 사용 시 성능 향상이 어떻게 달라지는지 확인해 보세요."
-  },
-  {
-    "expected": [
-      "혼합 정밀도"
-    ],
-    "file": "recipes_source/recipes/amp_recipe.py",
-    "hunks": [
-      "# Creates data in default precision.# The same data is used for both default and mixed precision trials below.# You don't need to manually change inputs'  when enabling mixed precision.",
-      "# 기본 정밀도로 데이터를 생성합니다.# 아래에서 기본 정밀도와 혼합 정밀도 실험 모두에서 동일한 데이터를 사용합니다.# 혼합 정밀도를 활성화할 때 입력의  을 수동으로 변경할 필요는 없습니다."
-    ],
-    "origin": "mixed precision",
-    "review_en": "# Creates data in default precision.# The same data is used for both default and mixed precision trials below.# You don't need to manually change inputs'  when enabling mixed precision.",
-    "review_kr": "# 기본 정밀도로 데이터를 생성합니다.# 아래에서 기본 정밀도와 혼합 정밀도 실험 모두에서 동일한 데이터를 사용합니다.# 혼합 정밀도를 활성화할 때 입력의  을 수동으로 변경할 필요는 없습니다."
-  },
-  {
-    "expected": [
-      "혼합 정밀도"
-    ],
-    "file": "recipes_source/recipes/amp_recipe.py",
-    "hunks": [
-      "# Adding # -------------------------# Instances of _# serve as context managers that allow regions of your script to run in mixed precision.## In these regions, CUDA ops run in a  chosen by # to improve performance while maintaining accuracy.# See the _# for details on what precision  chooses for each op, and under what circumstances.",
-      "#  추가하는 방법# -----------------------------# _# 의 인스턴스는 스크립트의 일부 영역을 혼합 정밀도로 실행할 수 있도록, 컨텍스트 관리자로 작동합니다.# 이 영역에서 CUDA 연산은 성능을 개선하면서 정확도를 유지하기 위해  가 선택한  으로 실행됩니다.# 각 연산에 대해  가 선택하는 정밀도와 해당 정밀도를 선택하는 상황에 대한 자세한 내용은# _ 를 참조하세요."
-    ],
-    "origin": "mixed precision",
-    "review_en": "# Adding # -------------------------# Instances of _# serve as context managers that allow regions of your script to run in mixed precision.## In these regions, CUDA ops run in a  chosen by # to improve performance while maintaining accuracy.# See the _# for details on what precision  chooses for each op, and under what circumstances.",
-    "review_kr": "#  추가하는 방법# -----------------------------# _# 의 인스턴스는 스크립트의 일부 영역을 혼합 정밀도로 실행할 수 있도록, 컨텍스트 관리자로 작동합니다.# 이 영역에서 CUDA 연산은 성능을 개선하면서 정확도를 유지하기 위해  가 선택한  으로 실행됩니다.# 각 연산에 대해  가 선택하는 정밀도와 해당 정밀도를 선택하는 상황에 대한 자세한 내용은# _ 를 참조하세요."
   },
   {
     "expected": [
@@ -90,19 +25,6 @@
     "origin": "loss",
     "review_en": "",
     "review_kr": "[ERR] # loss는 float32입니다. 이는  계층이  에 의해 float32로 변환되기 때문입니다."
-  },
-  {
-    "expected": [
-      "혼합 정밀도"
-    ],
-    "file": "recipes_source/recipes/amp_recipe.py",
-    "hunks": [
-      "# helps prevent gradients with small magnitudes from flushing to zero# (\"underflowing\") when training with mixed precision.#",
-      "# 은 혼합 정밀도로 학습할 때 작은 크기의 변화도가 0으로 사라지는 (\"underflowing\") 하는 것을 방지하는 데 도움을 줍니다."
-    ],
-    "origin": "mixed precision",
-    "review_en": "# helps prevent gradients with small magnitudes from flushing to zero# (\"underflowing\") when training with mixed precision.#",
-    "review_kr": "# 은 혼합 정밀도로 학습할 때 작은 크기의 변화도가 0으로 사라지는 (\"underflowing\") 하는 것을 방지하는 데 도움을 줍니다."
   },
   {
     "expected": [
@@ -129,19 +51,6 @@
     "origin": "gradient",
     "review_en": "# performs the steps of gradient scaling conveniently.",
     "review_kr": "# 는 변화도 스케일링 단계를 편리하게 수행합니다."
-  },
-  {
-    "expected": [
-      "혼합 정밀도"
-    ],
-    "file": "recipes_source/recipes/amp_recipe.py",
-    "hunks": [
-      "# All together: \"Automatic Mixed Precision\"# ------------------------------------------# (The following also demonstrates , an optional convenience argument to  and .# If False,  and \\ 's calls become no-ops.# This allows switching between default precision and mixed precision without if/else statements.)",
-      "# \"Automatic Mixed Precision\" 소개한 것들 같이 사용하는 방법# ---------------------------------------------------# (다음 예시는  와  을 사용할 수 있는 편리한# 인자인  를 보여줍니다. 만약 False로 설정되면, # 와  의 호출이 무효화됩니다. 이를 통해 if/else 문 없이# 기본 정밀도와 혼합 정밀도 간 전환이 가능합니다.)"
-    ],
-    "origin": "mixed precision",
-    "review_en": "# All together: \"Automatic Mixed Precision\"# ------------------------------------------# (The following also demonstrates , an optional convenience argument to  and .# If False,  and \\ 's calls become no-ops.# This allows switching between default precision and mixed precision without if/else statements.)",
-    "review_kr": "# \"Automatic Mixed Precision\" 소개한 것들 같이 사용하는 방법# ---------------------------------------------------# (다음 예시는  와  을 사용할 수 있는 편리한# 인자인  를 보여줍니다. 만약 False로 설정되면, # 와  의 호출이 무효화됩니다. 이를 통해 if/else 문 없이# 기본 정밀도와 혼합 정밀도 간 전환이 가능합니다.)"
   },
   {
     "expected": [
