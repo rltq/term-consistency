@@ -111,6 +111,8 @@ term-consistency 의 회귀 검증은 두 레이어로 나뉜다. 두 레이어�
 
 **확장 완료 (v0.3.0 작업 0).** `find_terms` 의 전체 분기 계약 + 헬퍼 (`normalize_ko`, `strip_text`) 경계 + `INCLUDE_SYNONYMS` 훅 (SCOPE 제외 6) 이 박제됐다. 커버리지 확보가 아니라 **계약 고정** 이 의도 — 권위 계층 머지 (v0.3 작업 1-2) 도입 후에도 기존 분기 계약이 동일하게 작동함을 증명하는 안전망이다. 각 테스트의 docstring 에 "어느 분기" / "어느 이슈의 회귀 가드" 가 명시되어, 향후 변경 시 해당 테스트가 깨지면 재검토 대상이 어디인지 즉시 드러난다.
 
+**확장 완료 (v0.3.0 작업 1-2).** 레포 용어집 override 도입에 맞춰 유닛 레이어가 다시 확장됐다. 신규 범위: (1) `tests/test_glossary.py` — `load_glossary` (repo_id 매핑 / case-insensitive / 알 수 없는 repo_id fallback / 번역안함 엔트리 스팟 / 분할 엔트리 스팟 / 명사형 축약 / 태그 일관성) + `merge_lookups` (충돌 시 repo 완전 대체 / 비충돌 양쪽 보존 + 태깅 / 원본 dict 비변이 / len 내림차순 정렬), (2) `tests/test_match.py` 의 `authority propagation` 섹션 — repo 태그 / 레거시 기본값 `terms.kr` / unmatched 레코드, (3) `tests/test_main.py` — `extract_repo_id` 의 URL 파싱 엣지 케이스. 신규 **19건** (glossary 11 + match 3 + main 5) 추가, 총 **51건 통과**. 78개 키 수 박제는 추출 방침 드리프트 감지 가드로, 원본 `TRANSLATION_GUIDE.md` 표가 갱신되면 이 테스트가 깨지면서 재추출 + 방침 재검토를 강제한다.
+
 ### 두 레이어의 분담
 
 | | 스냅샷 | 유닛 |

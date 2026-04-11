@@ -432,3 +432,57 @@ def test_include_synonyms_true_promotes_synonyms_to_allowed(monkeypatch):
     # expected 에 korean + synonyms 둘 다 나열.
     assert matched[0]["expected"] == ["활성화 함수", "활성 함수"]
     assert unmatched == []
+
+
+# ---------------------------------------------------------------------------
+# find_terms: authority propagation (v0.3.0 작업 1-2)
+# ---------------------------------------------------------------------------
+#
+# glossary.merge_lookups 가 각 meaning 에 _authority 태그를 부여하고,
+# find_terms 가 이를 matched/unmatched 레코드의 "authority" 필드로
+# propagate 한다. 권위 출처가 출력에 드러나야 리뷰 시점에 "이 엔트리가
+# 어느 권위에 의해 판정됐는가" 를 즉시 구분할 수 있다. 아래 두 테스트는
+# 태그된/태그 없는 양쪽 경로의 계약을 고정.
+
+
+def test_authority_repo_tag_propagates_to_matched():
+    """meaning 에 _authority='repo' 가 있으면 matched 레코드의
+    authority 필드가 'repo' 로 출력된다. merge_lookups 의 태그가
+    파이프라인 끝까지 propagate 됨을 박제.
+    """
+    lookup = {"training": [{"korean": "학습", "_authority": "repo"}]}
+    segments = [_segment("Training is important.", "학습이 중요합니다.")]
+
+    matched, _ = find_terms(segments, lookup)
+
+    assert len(matched) == 1
+    assert matched[0]["authority"] == "repo"
+
+
+def test_authority_default_terms_kr_for_untagged_meanings():
+    """태그 없는 meanings 는 기본값 'terms.kr' 로 해석. merge_lookups
+    를 거치지 않은 레거시 경로 (terms_all.json 만 로드한 직통 호출)
+    에 대한 하위 호환 계약 — find_terms 는 항상 authority 필드를
+    출력해야 한다.
+    """
+    lookup = {"training": [{"korean": "학습"}]}  # no _authority key
+    segments = [_segment("Training is important.", "학습이 중요합니다.")]
+
+    matched, _ = find_terms(segments, lookup)
+
+    assert len(matched) == 1
+    assert matched[0]["authority"] == "terms.kr"
+
+
+def test_authority_propagates_to_unmatched():
+    """matched 뿐 아니라 unmatched 레코드에도 authority 필드가 달린다.
+    unmatched 분기 (기대 번역이 kr 본문에 없음) 도 권위 출처를 드러내야
+    리뷰 시 '어떤 권위가 이걸 기대했는가' 를 구분 가능.
+    """
+    lookup = {"training": [{"korean": "학습", "_authority": "repo"}]}
+    segments = [_segment("Training is important.", "공부가 중요합니다.")]
+
+    _, unmatched = find_terms(segments, lookup)
+
+    assert len(unmatched) == 1
+    assert unmatched[0]["authority"] == "repo"
