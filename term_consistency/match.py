@@ -1,6 +1,12 @@
 import re
 
 
+# v0.x: synonyms 를 매칭에 포함할지. 현재 False (SCOPE 제외 6 — terms.kr
+# 운영자 의사 미확인). True 로 바꾸면 meanings[i].synonyms 가 allowed 에
+# 동등 권위로 포함됨.
+INCLUDE_SYNONYMS = False
+
+
 def normalize_ko(text) -> str:
     return text.replace(" ", "")
 
@@ -27,6 +33,9 @@ def find_terms(
                 # normalize_ko 로 공백 제거되므로 포함 비교 대칭을 위해 필요.
                 meanings = term_lookup[term]
                 allowed = [meaning["korean"] for meaning in meanings]
+                if INCLUDE_SYNONYMS:
+                    for m in meanings:
+                        allowed.extend(m.get("synonyms", []))
                 allowed_normalized = [normalize_ko(k) for k in allowed]
                 if brace_pattern.search(kr_text):
                     matched.append(
