@@ -60,12 +60,23 @@ def find_terms(
                     # 한국어까지 번역매칭을 하는건 비효율적. 번역어를 교정해야하는데 번역어가 어떻게 다르게 들어갔을지 알 방법 X.
                     # 한 문장을 여러 문장으로 분절해 번역하는 경우도 있어 Idx 기반 탐색 효율 X
 
-                    en_review, kr_review = "", ""
-                    if term in en_text and not term in kr_text:
-                        en_review = en_text
-                        kr_review =kr_text
-                    else:
-                        kr_review = "[ERR] " +''.join( kr_text )
+                    # en 에는 토큰이 있음 (위 pattern.search 통과). kr 에 기대 번역어가
+                    # 없는 상태에서 원인을 두 종류로 구분:
+                    #   1) 영문 토큰이 한국어 본문에 그대로 박힘 → 번역 누락, [ERR] 라벨
+                    #   2) 그 외 → 일반 unmatched (en/kr 동시 노출하여 사람 판단)
+                    # \b 는 x+와 같이 한글이 바로 붙은 경우 경계가 안 생겨 매칭을
+                    # 놓친다 ("Softmax와", "ReLU 및"). ASCII 글자 인접만 차단하는
+                    # 전용 경계로 누설을 탐지.
+                    leak_pattern = re.compile(
+                        r"(?<![a-zA-Z])" + re.escape(term) + r"(?![a-zA-Z])",
+                        re.IGNORECASE,
+                    )
+                    en_review = en_text
+                    kr_review = (
+                        "[ERR] " + kr_text
+                        if leak_pattern.search(kr_text)
+                        else kr_text
+                    )
 
                     unmatched.append(
                         {
