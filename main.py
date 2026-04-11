@@ -20,21 +20,13 @@ def main():
     args = parser.parse_args()
 
     term_kr_url = args.term_url  # args 기본값으로
-    print(term_kr_url)
+    print(term_kr_url, file=sys.stderr)
     pr_url = args.pr_url  # 'https://github.com/PyTorchKorea/tutorials-kr/pull/1056'
-    print(pr_url)
+    print(pr_url, file=sys.stderr)
     diff_text = load_diff_text(pr_url)
 
     # Load terms
-    # terms_all.json 이 없으면 load - 로컬환경용
-    if not "terms_all.json" in os.listdir(os.getcwd()):
-        all_terms = create_terms(term_kr_url)
-        with open("terms_all.json", "w") as f:
-            json.dump(all_terms, f, ensure_ascii=False)
-    else:
-        with open("terms_all.json", "r") as f:
-            all_terms = json.load(f)
-    all_terms.sort(key=lambda x: len(x["term"]), reverse=True)
+    all_terms = load_terms(term_kr_url)
     term_lookup = create_lookup(all_terms)
 
     segments = parse_diff(diff_text)
