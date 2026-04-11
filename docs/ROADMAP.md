@@ -10,10 +10,10 @@
 
 ## 현재 위치
 
-> **v0.3.0 작업 0 완료 — 작업 1 (레포별 용어집 어댑터) 대기**
+> **v0.3.0 작업 1-3 완료 — 작업 4 (synonyms 결정) 보류, v0.4.0 진입 가능**
 >
-> v0.3 작업 0: `match.py` 분기 계약 박제. `find_terms` 의 모든 분기 (matched / brace / `[ERR]` leak / 일반 unmatched / 중복 탐지 skip / kr 빈 문자열 / word boundary / case-insensitive) + 헬퍼 (`normalize_ko`, `strip_text`) 경계 + `INCLUDE_SYNONYMS` 훅 (SCOPE 제외 6 의 토글 안전망) 을 유닛 테스트로 고정. 신규 24건 추가, seed 4 + 스냅샷 4 와 합쳐 32건 통과.
-> 다음 작업: v0.3.0 작업 1 — pytorch-kr 자체 용어집 어댑터 도입.
+> v0.3 작업 1-2: pytorch-kr 레포 용어집 override 도입. `TRANSLATION_GUIDE.md` 의 용어 표를 1회 정적 추출해 `data/glossary_pytorch_kr.json` (78 키) 로 박제, `term_consistency/glossary.py` 의 `load_glossary` + `merge_lookups` 헬퍼와 `main.py` wiring 으로 파이프라인이 레포 권위 우선 머지를 수행. `find_terms` 출력에 `authority` 필드 추가로 권위 출처가 레코드에 드러남 (원칙 3). 작업 3: 기존 4 픽스처의 스냅샷이 override 활성 상태로 재생성됨. 신규 유닛 19건 (glossary 11 + match 3 + main 5) 추가, 총 **51건 통과**. SCOPE 제외 7 닫힘.
+> 다음 작업: v0.3.0 작업 4 (synonyms 처리 결정) 는 외부 의사 확인이 조건이라 보류. v0.4.0 (PR 트리거) 으로 진행 가능.
 
 이 줄은 마일스톤이 바뀔 때마다 갱신한다.
 
@@ -123,31 +123,33 @@
    - seed: `tests/test_match.py` 가 #8 fix 시 이미 추가됨 (중복 탐지 4 케이스). 이 위에서 나머지 분기 케이스를 확장.
    - 논리: 작업 1-2 의 "pre-split 스냅샷 → 모듈 분리" 패턴과 동일 구조. 변경이 쌓이기 전에 검증 단위를 먼저 깔아두는 점진적 검증 원칙.
 
-1. **레포별 용어집 어댑터 도입**
-   - pytorch-kr 의 자체 용어집 (마크다운 flat dict) 을 파싱하는 어댑터 작성.
-   - 어댑터 인터페이스: `load_repo_glossary(repo_id) → dict[str, str]`.
-   - 첫 구현은 pytorch-kr 만 지원, 어댑터 추상화는 v1.1+ 의 타 레포 확장을 위한 hook.
+1. **레포별 용어집 어댑터 도입** ✅
+   - pytorch-kr 의 `TRANSLATION_GUIDE.md` 용어 표 추출. 당초 계획은 마크다운 파서였으나 추출 자체가 판단 작업 (번역안함 엔트리 en→en 매핑, 괄호 한정어 strip, ~하다/~하기 명사형 축약 등) 이라 **1회성 정적 JSON 박제** 방식으로 재프레이밍. 파서를 파이프라인에 유지하는 비용 회피, 업스트림 표 변경 시 수동 재추출.
+   - 결과물: `data/glossary_pytorch_kr.json` (78 키, 원본 76행 - 1 제외 + 3 분할), `term_consistency/glossary.py` 의 `load_glossary(repo_id) → dict`. 첫 구현은 pytorchkorea/tutorials-kr 만 지원. 추출 방침과 알려진 경계 (예: `track (computation) history` 의 괄호 선택적 부분 의미론) 는 `glossary.py` 모듈 docstring 에 영구 기록.
+   - 어댑터 추상화 (v1.1+ 의 타 레포 확장 hook) 는 단일 `_GLOSSARY_FILES` 매핑으로 시작. 플러그인 레지스트리 승격은 미래 작업.
 
-2. **권위 계층 머지 로직**
-   - `find_terms` 의 매칭 결정에 권위 우선순위 적용: 레포별 → terms.kr.
-   - 충돌 시 레포별이 우선.
-   - 출력에 **어느 권위에서 온 매칭인지** 표시 (원칙 3: 출력은 근거다).
+2. **권위 계층 머지 로직** ✅
+   - `glossary.merge_lookups(repo_overrides, terms_kr)` 가 repo 우선 머지를 수행. 같은 키 충돌 시 repo 가 terms.kr 의 meaning list 를 **완전 대체** (병합 아님). 레포 권위 상위 원칙의 직접 구현.
+   - terms.kr meanings 에는 `_authority="terms.kr"` 태그가 copy 로 부여 (원본 dict 비변이). repo meanings 는 JSON 에 이미 `_authority="repo"` 로 태그.
+   - `find_terms` 가 meaning 의 `_authority` 를 읽어 matched/unmatched 레코드의 `authority` 필드로 propagate. 출력에 권위 출처가 드러남 (원칙 3).
+   - `main.py` 가 `extract_repo_id(pr_url)` 로 PR URL 에서 owner/name 추출 후 `load_glossary` + `merge_lookups` 를 파이프라인에 wiring.
 
-3. **픽스처 갱신**
-   - v0.2 의 픽스처 4-5건에 대해, override 도입 후 어떤 매칭이 false positive 에서 통과로 바뀌는지 명시적으로 스냅샷에 반영.
-   - 예상: pytorch-kr 의 "학습" (training) 케이스가 unmatched 에서 빠짐.
+3. **픽스처 갱신** ✅
+   - v0.2 의 4 픽스처 (pr_922/923/945/1059) 스냅샷이 override 활성 상태로 재생성. 신규 픽스처 추가 없이 기존 파일의 스냅샷만 갱신.
+   - 관측된 변화: pr_1059 는 unmatched 가 11→4 로 감소 (repo 허용 형태와 kr 본문 일치), pr_922/923 은 8→15, 17→24 로 증가 (repo 가 terms.kr 의 다중 허용 형태를 단일 형태로 엄격화), pr_945 는 총수 유지 + 권위 분포만 변화. 양방향 효과가 한 실행에 공존하며 "상위 권위 대체" 의미론이 실제 데이터로 박제됨.
 
-4. **synonyms 처리 결정**
-   - terms.kr 운영자에게 synonyms 의 권위적 위치 문의 (가정 3, SCOPE 제외 6).
-   - 답변 받으면 그 결정을 코드에 반영. 답변이 v0.3 출시 전에 도착하지 않으면 무시 정책 유지.
+4. **synonyms 처리 결정** (보류)
+   - terms.kr 운영자에게 synonyms 의 권위적 위치 문의 (가정 3, SCOPE 제외 6). 외부 의사 확인이 전제조건.
+   - 답변 미도착 시 현 정책 (`INCLUDE_SYNONYMS = False`) 유지. 훅은 이미 심어져 있어 답변 도착 시 토글 + 픽스처 재생성 1 커밋으로 닫힘.
+   - 이 항목은 v0.3.0 닫힘 블로커가 아니며, v0.4.0 진입을 막지 않는다.
 
 ### Definition of Done
 
-- [ ] pytorch-kr 자체 용어집을 로드해서 매칭에 반영함.
-- [ ] terms.kr 와 충돌하는 케이스 (예: training → 학습) 가 false positive 로 안 잡힘.
-- [ ] 픽스처가 갱신되어 override 동작을 스냅샷으로 검증 가능.
-- [ ] 출력에 권위 출처가 표시됨 (원칙 3).
-- [ ] SCOPE.md 의 제외 7 이 "닫힘" 으로 갱신됨.
+- [x] pytorch-kr 자체 용어집을 로드해서 매칭에 반영함.
+- [x] terms.kr 와 충돌하는 케이스 (예: training → 학습) 가 false positive 로 안 잡힘.
+- [x] 픽스처가 갱신되어 override 동작을 스냅샷으로 검증 가능.
+- [x] 출력에 권위 출처가 표시됨 (원칙 3).
+- [x] SCOPE.md 의 제외 7 이 "닫힘" 으로 갱신됨.
 
 ### 위험과 조기 경보
 
