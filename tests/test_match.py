@@ -1,14 +1,22 @@
-"""find_terms 의 중복 탐지 skip 로직 단위 테스트 (#8).
+"""match.py 의 분기 계약 박제.
 
-이 파일은 스냅샷 회귀 테스트가 잡지 못하는 영역 — 짧은 용어가 긴 용어의
-매칭 구간에 완전히 포함될 때 레코드가 실제로 제거되는지 — 를 직접 검증한다.
+**v0.2.0 seed.** find_terms 의 중복 탐지 skip 로직 (#8). 스냅샷 회귀
+테스트가 잡지 못하는 축소 효과 — 짧은 용어가 긴 용어의 매칭 구간에 완전히
+포함될 때 레코드가 실제로 제거되는지 — 를 직접 검증한다. `pr_945.json` 의
+유일한 substring-containment 케이스 (gradient ∈ gradient accumulation) 는
+"Gradient penalty" 덕에 부분 커버라 스냅샷 diff 가 0 이므로 스냅샷으로는
+fix 의 축소 효과를 증명할 수 없다.
 
-`tests/snapshots/pr_945.json` 의 유일한 substring-containment 케이스 (gradient
-∈ gradient accumulation) 는 "Gradient penalty" 덕에 부분 커버라 스냅샷 diff
-가 발생하지 않는다. 즉 스냅샷은 이 fix 의 축소 효과를 증명하지 못한다.
-단위 테스트가 그 간극을 메운다.
+**v0.3.0 작업 0 확장.** match.py 전체 계약을 박제한다. 목적은 커버리지가
+아니라 **계약 고정** — v0.3.0 작업 1-2 (레포별 용어집 override + 권위 머지)
+가 매칭 결정 로직을 건드릴 때 기존 분기가 동일하게 작동함을 박제한다.
+범위: find_terms 의 모든 분기 (matched / brace-matched / unmatched /
+[ERR] leak / kr 빈 문자열 / word boundary / case-insensitive) + 헬퍼
+(normalize_ko, strip_text) 경계 + INCLUDE_SYNONYMS 훅 (SCOPE 제외 6). 두
+레이어의 분담은 docs/TESTING.md 의 "검증 레이어 — 유닛" 섹션 참조.
 """
-from term_consistency.match import find_terms
+from term_consistency import match
+from term_consistency.match import find_terms, normalize_ko, strip_text
 
 
 def _lookup(*pairs: tuple[str, str]) -> dict:
@@ -20,6 +28,11 @@ def _lookup(*pairs: tuple[str, str]) -> dict:
 
 def _segment(en: str, kr: str, file: str = "f.py") -> dict:
     return {"file": file, "en": en, "kr": kr}
+
+
+# ---------------------------------------------------------------------------
+# find_terms: 중복 탐지 skip (#8 seed)
+# ---------------------------------------------------------------------------
 
 
 def test_short_term_fully_covered_is_dropped():
@@ -84,3 +97,71 @@ def test_brace_annotated_short_term_is_suppressed_when_fully_covered():
     unmatched_origins = {u["origin"] for u in unmatched}
     assert "training" not in matched_origins
     assert "training" not in unmatched_origins
+
+
+# ---------------------------------------------------------------------------
+# normalize_ko: 공백 제거 경계
+# ---------------------------------------------------------------------------
+#
+# normalize_ko 는 한국어 본문과 allowed 리스트를 대칭으로 공백 제거해서
+# 비교하기 위한 함수다 (PR #19 에서 비대칭 버그 수정). 여기서 박제하는
+# 계약은 "공백 ' ' 만 제거" 이며, 탭/개행 등 다른 whitespace 는 건드리지
+# 않는다. 이 선택의 근거는 PR #19 의 결정 — "multi-word 번역어가 단일
+# ' ' 로만 구성되는 게 실제 관찰 패턴" 이므로 그 이상의 normalize 는
+# false negative 리스크.
+
+
+def test_normalize_ko_strips_single_spaces():
+    assert normalize_ko("혼합 정밀도") == "혼합정밀도"
+
+
+def test_normalize_ko_strips_multiple_spaces():
+    assert normalize_ko("활성화  함수") == "활성화함수"
+
+
+def test_normalize_ko_empty_string_passthrough():
+    assert normalize_ko("") == ""
+
+
+def test_normalize_ko_no_space_passthrough():
+    assert normalize_ko("혼합정밀도") == "혼합정밀도"
+
+
+def test_normalize_ko_preserves_tab_and_newline():
+    """탭/개행은 공백 취급하지 않는다 — 현재 행동 박제.
+
+    근거: 실제 multi-word 번역어의 공백 패턴은 단일 ' ' 이며, 탭/개행이
+    섞이는 경우는 관찰되지 않았다. 이 계약이 바뀌려면 실제 PR 에서 반례
+    수집이 선행돼야 한다.
+    """
+    assert normalize_ko("혼합\t정밀도") == "혼합\t정밀도"
+    assert normalize_ko("혼합\n정밀도") == "혼합\n정밀도"
+
+
+# ---------------------------------------------------------------------------
+# strip_text: 백틱 스트립 경계
+# ---------------------------------------------------------------------------
+#
+# strip_text 는 code span / code block 의 내용을 매칭 전에 제거하는
+# 사전 컷이다 (SCOPE 제외 3). 코드 안의 영어 식별자가 용어 매칭에
+# 들어오면 거의 전부가 false positive 가 되므로 매칭 전에 제거.
+
+
+def test_strip_text_removes_inline_backtick():
+    assert strip_text("use `model` here") == "use  here"
+
+
+def test_strip_text_removes_triple_backtick():
+    assert strip_text("before ```code``` after") == "before  after"
+
+
+def test_strip_text_plain_text_passthrough():
+    assert strip_text("no backticks here") == "no backticks here"
+
+
+def test_strip_text_multiple_blocks():
+    assert strip_text("a `x` b `y` c") == "a  b  c"
+
+
+def test_strip_text_empty_string_passthrough():
+    assert strip_text("") == ""
