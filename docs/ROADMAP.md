@@ -67,9 +67,9 @@
    - PR `.diff` 4-5건을 `tests/fixtures/` 에 저장 (네트워크 의존 제거).
    - 그 시점의 `terms_all.json` 도 같이 박제.
    - 현재 (버그 있는) 출력을 그대로 `tests/snapshots/` 에 저장 → 1차 commit `test: capture pre-split snapshots`.
-   - 픽스처 후보: PR #945 (pre-split 스냅샷 이미 박제됨 — `tests/snapshots/pr_945.txt`), PR #1052 (`log/` 에 자료 있음, 노이즈 있어 편입 전 검토 필요). PR #1059 는 원문 측 문제로 스냅샷 기준선 부적합.
+   - 픽스처 후보: PR #945 (pre-split 스냅샷 이미 박제됨 — `tests/snapshots/pr_945.json`), PR #1052 (`log/` 에 자료 있음, 노이즈 있어 편입 전 검토 필요). PR #1059 는 원문 측 문제로 스냅샷 기준선 부적합.
    - 자세한 패턴은 [TESTING.md](./TESTING.md).
-   - 관련 이슈: 새 이슈 (TBD).
+   - 관련 이슈: PR #15 에서 완료 (별도 이슈 없이 PR 자체로 추적).
 
 3. **버그 수정 — normalize_ko 비대칭** (이슈 #16)
    - `allowed` 리스트의 한국어 번역어가 공백 제거되지 않은 채 `normalize_ko(kr_text)` 와 비교됨 → multi-word 번역어가 항상 unmatched.
