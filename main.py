@@ -44,7 +44,7 @@ def main():
 
     segments = parse_diff(diff_text)
     matched, unmatched = find_terms(segments, term_lookup)
-    print(format_findings(matched, unmatched), end="")
+    json.dump(unmatched, sys.stdout, ensure_ascii=False, sort_keys=True, indent=2)
 
 
 if __name__ == "__main__":
