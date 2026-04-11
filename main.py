@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import json
 import argparse
@@ -69,9 +70,9 @@ def main():
     args = parser.parse_args()
 
     term_kr_url = args.term_url  # args 기본값으로
-    print(term_kr_url)
+    print(term_kr_url, file=sys.stderr)
     pr_url = args.pr_url  # 'https://github.com/PyTorchKorea/tutorials-kr/pull/1056'
-    print(pr_url)
+    print(pr_url, file=sys.stderr)
     diff_text = load_diff_text(pr_url)
 
     # Load terms
@@ -194,18 +195,9 @@ def main():
 
     # print("*"*50)
 
-    for items in unmatched:
-        for k, v in items.items():
-            if k == "file":
-                print(f"\n{k} -> {v}")
-            elif k == "origin":
-                print(f"{k} -> {v}")
-            elif k == "expected":
-                print(f"{k} -> {v}")
-            elif k == "review_en":
-                print(f"{k} ==> {v}")
-            elif k == "review_kr":
-                print(f"{k} ==> {v}")
+    # TESTING.md 1단계 임시 추출: unmatched 를 JSON 으로 stdout 출력.
+    # 단계 4 (모듈 분리) 에서 find_terms 반환값 직렬화로 흡수되어 제거됨.
+    json.dump(unmatched, sys.stdout, ensure_ascii=False, sort_keys=True, indent=2)
 
 
 if __name__ == "__main__":
