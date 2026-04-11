@@ -165,3 +165,130 @@ def test_strip_text_multiple_blocks():
 
 def test_strip_text_empty_string_passthrough():
     assert strip_text("") == ""
+
+
+# ---------------------------------------------------------------------------
+# find_terms: 주요 분기 계약
+# ---------------------------------------------------------------------------
+#
+# find_terms 는 if (brace) / elif (normalize_ko 포함) / elif (kr 비어있지
+# 않음, [ERR] 또는 일반 unmatched) 의 3-way 분기를 갖는다. 각 분기는 출력
+# 딕셔너리의 키가 다르다 ("matched" vs "matched(brace)") 거나 review_kr 의
+# 프리픽스가 다르다 ("[ERR] ..." vs "..."). 이 섹션은 각 분기가 어느 입력
+# 에서 선택되는지를 박제한다.
+
+
+def test_matched_plain():
+    """allowed 의 원문이 kr 에 그대로 있으면 일반 matched 분기 — 출력 키는 'matched'."""
+    lookup = _lookup(("training", "학습"))
+    segments = [_segment("Training is important.", "학습은 중요합니다.")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    assert len(matched) == 1
+    assert matched[0]["origin"] == "training"
+    assert matched[0]["expected"] == ["학습"]
+    assert "matched" in matched[0]
+    assert "matched(brace)" not in matched[0]
+    assert unmatched == []
+
+
+def test_matched_via_normalize_ko_space_asymmetry():
+    """allowed 에 공백이 있고 kr 은 공백 없이 쓴 경우 matched — #16 / PR #19 회귀 가드.
+
+    normalize_ko 는 allowed 와 kr 양쪽에 대칭으로 적용돼야 multi-word
+    번역어가 매칭된다. 이 대칭이 깨졌던 게 #16 이었다. 이 테스트가 깨지면
+    대칭이 다시 무너진 것.
+    """
+    lookup = {"mixed precision": [{"korean": "혼합 정밀도"}]}
+    segments = [_segment("Mixed precision training.", "혼합정밀도 학습을 적용합니다.")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    assert len(matched) == 1
+    assert matched[0]["origin"] == "mixed precision"
+    # expected 는 사람 읽기용 — 원문 공백 형태 유지 (normalize_ko 적용 X).
+    assert matched[0]["expected"] == ["혼합 정밀도"]
+    assert "matched" in matched[0]
+    assert unmatched == []
+
+
+def test_brace_matched_precedence_over_plain():
+    """kr 에 `한국어(english)` 패턴이 있으면 brace 분기가 일반 matched 보다 우선.
+
+    두 조건을 동시에 만족할 수 있는 입력 — "학습(training) 은 중요합니다."
+    는 "학습" 포함 검사도 통과하지만, if/elif 순서상 brace 분기가 먼저
+    잡는다. 출력 키가 'matched(brace)' 로 달라지는 것이 분기 식별점.
+    """
+    lookup = _lookup(("training", "학습"))
+    segments = [_segment("Training is important.", "학습(training) 은 중요합니다.")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    assert len(matched) == 1
+    assert matched[0]["origin"] == "training"
+    assert "matched(brace)" in matched[0]
+    assert "matched" not in matched[0]
+    assert unmatched == []
+
+
+def test_unmatched_plain_no_err_label():
+    """en 에 토큰이 있고 kr 에 번역어도 leak 도 없으면 일반 unmatched — review_kr 에 [ERR] 없음."""
+    lookup = _lookup(("training", "학습"))
+    segments = [_segment("Training is important.", "매우 중요한 내용입니다.")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    assert matched == []
+    assert len(unmatched) == 1
+    assert unmatched[0]["origin"] == "training"
+    assert unmatched[0]["expected"] == ["학습"]
+    assert not unmatched[0]["review_kr"].startswith("[ERR]")
+
+
+def test_err_leak_standalone_english_token_in_kr():
+    """영문 토큰이 kr 에 공백 경계로 박혀 있으면 review_kr 가 [ERR] 로 프리픽스."""
+    lookup = _lookup(("softmax", "소프트맥스"))
+    segments = [_segment("Use softmax here.", "여기서 softmax 를 사용합니다.")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    assert matched == []
+    assert len(unmatched) == 1
+    assert unmatched[0]["review_kr"].startswith("[ERR] ")
+
+
+def test_err_leak_korean_adjacent():
+    """한글이 영문 토큰 직후에 붙어도 leak 로 탐지.
+
+    re `\\b` 는 "Softmax와" 같이 한글 인접 시 경계를 인식하지 못한다.
+    match.py 는 이를 우회하기 위해 ASCII-only 경계 `(?<![a-zA-Z]) / (?![a-zA-Z])`
+    로 leak_pattern 을 별도 구성한다. 이 테스트는 그 우회가 실제로 한글
+    인접 케이스를 잡는지 박제한다.
+    """
+    lookup = _lookup(("softmax", "소프트맥스"))
+    segments = [_segment("Use softmax here.", "Softmax와 ReLU 를 비교합니다.")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    assert matched == []
+    assert len(unmatched) == 1
+    assert unmatched[0]["review_kr"].startswith("[ERR] ")
+
+
+def test_err_leak_case_insensitive():
+    """leak 탐지는 case-insensitive — #10 회귀 가드.
+
+    #10 이전에는 pattern.search (IGNORECASE) 로 en 매칭 후 `term in en_text`
+    (case-sensitive) 로 분기 → 대문자 토큰에서 분기 실패가 [ERR] 로 잘못
+    표기되는 비대칭이 있었다. 현재는 leak_pattern 도 IGNORECASE 이며
+    대문자 토큰이 kr 에 박혀도 [ERR] 로 정상 분류된다.
+    """
+    lookup = _lookup(("softmax", "소프트맥스"))
+    segments = [_segment("Use softmax function.", "Softmax 함수를 사용합니다.")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    assert matched == []
+    assert len(unmatched) == 1
+    assert unmatched[0]["review_kr"].startswith("[ERR] ")
