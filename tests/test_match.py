@@ -292,3 +292,143 @@ def test_err_leak_case_insensitive():
     assert matched == []
     assert len(unmatched) == 1
     assert unmatched[0]["review_kr"].startswith("[ERR] ")
+
+
+# ---------------------------------------------------------------------------
+# find_terms: 경계 케이스
+# ---------------------------------------------------------------------------
+
+
+def test_kr_empty_string_produces_no_output():
+    """kr_text 가 빈 문자열이면 matched / unmatched 어느 쪽에도 들어가지 않는다.
+
+    현재 match.py L69 의 `elif len(kr_text) > 0:` 가드가 이 동작을 만든다.
+    en 에 토큰이 있어도 kr 이 비어있으면 완전히 조용히 skip. 계약을 박제
+    하는 이유: 이 가드가 없어지면 빈 kr 에서도 unmatched 레코드가 생성되어
+    output 이 노이즈로 도배된다.
+    """
+    lookup = _lookup(("training", "학습"))
+    segments = [_segment("Training is important.", "")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    assert matched == []
+    assert unmatched == []
+
+
+def test_en_match_is_case_insensitive():
+    """en 측 pattern 은 IGNORECASE — 대문자 토큰도 동일하게 매칭."""
+    lookup = _lookup(("training", "학습"))
+    segments = [_segment("TRAINING is important.", "학습이 중요합니다.")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    assert len(matched) == 1
+    assert matched[0]["origin"] == "training"
+    assert unmatched == []
+
+
+def test_word_boundary_blocks_substring():
+    """`\\b` 경계가 더 긴 영어 단어의 일부를 매칭하지 않는다 — "retraining" 안의 "training" 차단."""
+    lookup = _lookup(("training", "학습"))
+    segments = [_segment("The retraining step is added.", "재학습 단계가 추가됩니다.")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    # "training" 이 pattern.finditer 에서 매칭되지 않으므로 record 자체가 생성 안 됨.
+    assert matched == []
+    assert unmatched == []
+
+
+def test_multiple_meanings_match_on_any():
+    """meanings 리스트에 여러 korean 이 있을 때 하나라도 kr 에 있으면 matched.
+
+    expected 필드에는 meanings 의 모든 korean 이 나열됨 (사람 리뷰용).
+    """
+    lookup = {"model": [{"korean": "모델"}, {"korean": "모형"}]}
+    segments = [_segment("The model is complex.", "이 모형은 복잡합니다.")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    assert len(matched) == 1
+    assert matched[0]["origin"] == "model"
+    assert matched[0]["expected"] == ["모델", "모형"]
+    assert unmatched == []
+
+
+def test_consumed_buffer_isolated_per_segment():
+    """consumed 버퍼는 세그먼트 단위로 격리된다.
+
+    한 세그먼트에서 긴 용어가 짧은 용어의 인터벌을 consume 했더라도 다음
+    세그먼트에는 이월되지 않는다. 이슈 #8 의 consume 로직은 "세그먼트 안
+    에서의 중복 보고 방지" 가 목적이지 "세그먼트 간 suppress" 가 아니다.
+    """
+    lookup = _lookup(("training loop", "학습 루프"), ("training", "학습"))
+    segments = [
+        # seg A: training loop 이 matched → training 의 span 을 consume
+        _segment("The training loop runs.", "학습 루프가 실행됩니다."),
+        # seg B: training 단독 등장 → seg A 의 consume 와 무관하게 처리돼야 함
+        _segment("Training starts here.", "여기서 시작됩니다."),
+    ]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    matched_origins = [m["origin"] for m in matched]
+    unmatched_origins = [u["origin"] for u in unmatched]
+
+    assert "training loop" in matched_origins
+    # seg A 에서는 training 이 consume 되어 skip
+    # seg B 에서는 consume 버퍼 초기화 → 정상적으로 unmatched 로 분류됨
+    assert "training" in unmatched_origins
+
+
+# ---------------------------------------------------------------------------
+# find_terms: INCLUDE_SYNONYMS 훅 계약 (SCOPE 제외 6)
+# ---------------------------------------------------------------------------
+#
+# INCLUDE_SYNONYMS 는 terms.kr 의 `meanings[].synonyms` 를 allowed 에
+# 포함할지 제어하는 모듈 상수. PR #19 에서 추가된 훅이며 현재 기본값
+# False. 운영자 답변이 확정되면 이 상수 토글 한 줄로 제외 6 을 닫을 수
+# 있어야 하는데, 그 전제를 유지하려면 False/True 양쪽의 계약이 박제돼
+# 있어야 한다. 그래야 토글 PR 의 안전성이 이 테스트로 즉시 검증된다.
+
+
+def test_include_synonyms_false_treats_synonyms_only_match_as_unmatched():
+    """기본 INCLUDE_SYNONYMS=False: synonyms 에만 있는 번역어는 allowed 에 포함되지 않음."""
+    lookup = {
+        "activation function": [
+            {"korean": "활성화 함수", "synonyms": ["활성 함수"]},
+        ],
+    }
+    segments = [_segment("Use activation function here.", "활성 함수를 사용합니다.")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    assert matched == []
+    assert len(unmatched) == 1
+    # expected 는 synonyms 를 포함하지 않음 — korean 만.
+    assert unmatched[0]["expected"] == ["활성화 함수"]
+
+
+def test_include_synonyms_true_promotes_synonyms_to_allowed(monkeypatch):
+    """INCLUDE_SYNONYMS=True: synonyms 가 allowed 에 동등 권위로 포함 → matched.
+
+    terms.kr 운영자 답변이 확정되면 이 상수 토글 한 줄로 제외 6 을 닫을
+    수 있도록 훅 계약을 박제. 이 테스트가 깨지면 토글 PR 의 안전성이
+    재검토 필요.
+    """
+    monkeypatch.setattr(match, "INCLUDE_SYNONYMS", True)
+
+    lookup = {
+        "activation function": [
+            {"korean": "활성화 함수", "synonyms": ["활성 함수"]},
+        ],
+    }
+    segments = [_segment("Use activation function here.", "활성 함수를 사용합니다.")]
+
+    matched, unmatched = find_terms(segments, lookup)
+
+    assert len(matched) == 1
+    # expected 에 korean + synonyms 둘 다 나열.
+    assert matched[0]["expected"] == ["활성화 함수", "활성 함수"]
+    assert unmatched == []
