@@ -98,13 +98,16 @@ terms.kr 은 pytorch-kr 조직이 직접 운영하는 용어 데이터베이스 
 
 ### 제외 6. 같은 용어의 동의어 (synonyms) 매칭
 
-**무엇.** terms.kr 용어집의 `meanings[i].synonyms` 리스트는 현재 매칭에 사용되지 않는다. 오직 `meanings[i].korean` 만 본다.
+**무엇.** terms.kr 용어집의 `meanings[i].synonyms` 리스트는 현재 매칭에 사용되지 않는다. 오직 `meanings[i].korean` 만 본다. `term_consistency/match.py` 의 모듈 상수 `INCLUDE_SYNONYMS = False` 로 제어되며, 이 상수를 `True` 로 바꾸면 synonyms 가 `allowed` 에 동등 권위로 포함되는 훅이 심어져 있음 (PR #19).
 
 **왜 제외.** v0.1 베이스라인 단순성 + **synonyms 의 권위적 위치가 운영자 의도상 불명확**. terms.kr 측이 "synonyms 도 동등 인정" 인지 "비권장 대안" 인지 정하지 않은 상태에서 도구가 임의로 동등 인정하면 도구의 정확도 정의가 흔들린다. 보수적으로 무시.
 
 **이로 인해 빠지는 케이스.** 용어집에 `korean: "활성화 함수", synonyms: ["활성 함수"]` 로 있을 때, 번역자가 "활성 함수" 로 옮긴 케이스. 도구는 이를 unmatched 로 알림 (= false positive 의 한 형태).
 
-**다시 검토할 시점.** terms.kr 운영자에게 synonyms 의 권위적 위치를 직접 확인한 후. 또는 v0.2.0 normalize_ko 비대칭 수정 작업과 같은 PR 에서 같이 검토 — 두 변경 모두 "한국어 텍스트와 허용 목록의 비교 로직" 을 건드리므로 묶는 게 자연스럽다.
+**다시 검토할 시점.**
+
+- (완료) v0.2.0 normalize_ko 비대칭 수정 PR (#19) 에서 같이 검토 — 두 변경이 "한국어 텍스트와 허용 목록의 비교 로직" 을 공통으로 건드리므로 검토 자체는 자연스러웠음. 결과: **기능으로는 포함하지 않음, `INCLUDE_SYNONYMS` 훅만 추가**. 근거는 가정 4 (운영자 의사 미확인) 가 해소되지 않았기 때문.
+- (남은 조건) terms.kr 운영자에게 synonyms 의 권위적 위치를 확인한 후. 확인되면 `INCLUDE_SYNONYMS = True` 토글 + 픽스처 갱신 1 커밋으로 닫을 수 있음.
 
 ---
 
