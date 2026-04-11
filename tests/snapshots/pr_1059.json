@@ -1,79 +1,8 @@
 [
   {
-    "authority": "terms.kr",
+    "authority": "repo",
     "expected": [
-      "그래디언트"
-    ],
-    "file": "intermediate_source/per_sample_grads.py",
-    "hunks": [
-      "# In regular model training, one would forward the minibatch through the model,# and then call .backward() to compute gradients.  This would generate an# 'average' gradient of the entire mini-batch:",
-      "# 미니배치를 모델에 주고, .backward()를 호출해서# 변화도를 계산하는 것이 일반적인 모델 학습 방법입니다.# 곧, 그 미니배치 전체의 '평균적인' 변화도를 생성할 수 있습니다:"
-    ],
-    "origin": "gradient",
-    "review_en": "# In regular model training, one would forward the minibatch through the model,# and then call .backward() to compute gradients.  This would generate an# 'average' gradient of the entire mini-batch:",
-    "review_kr": "# 미니배치를 모델에 주고, .backward()를 호출해서# 변화도를 계산하는 것이 일반적인 모델 학습 방법입니다.# 곧, 그 미니배치 전체의 '평균적인' 변화도를 생성할 수 있습니다:"
-  },
-  {
-    "authority": "terms.kr",
-    "expected": [
-      "훈련"
-    ],
-    "file": "intermediate_source/per_sample_grads.py",
-    "hunks": [
-      "# In regular model training, one would forward the minibatch through the model,# and then call .backward() to compute gradients.  This would generate an# 'average' gradient of the entire mini-batch:",
-      "# 미니배치를 모델에 주고, .backward()를 호출해서# 변화도를 계산하는 것이 일반적인 모델 학습 방법입니다.# 곧, 그 미니배치 전체의 '평균적인' 변화도를 생성할 수 있습니다:"
-    ],
-    "origin": "training",
-    "review_en": "# In regular model training, one would forward the minibatch through the model,# and then call .backward() to compute gradients.  This would generate an# 'average' gradient of the entire mini-batch:",
-    "review_kr": "# 미니배치를 모델에 주고, .backward()를 호출해서# 변화도를 계산하는 것이 일반적인 모델 학습 방법입니다.# 곧, 그 미니배치 전체의 '평균적인' 변화도를 생성할 수 있습니다:"
-  },
-  {
-    "authority": "terms.kr",
-    "expected": [
-      "그래디언트"
-    ],
-    "file": "intermediate_source/per_sample_grads.py",
-    "hunks": [
-      "# In contrast to the above approach, per-sample-gradient computation is# equivalent to:",
-      "# 위 방법과는 반대로, 샘플별 변화도 계산은 다음과 같습니다:"
-    ],
-    "origin": "gradient",
-    "review_en": "# In contrast to the above approach, per-sample-gradient computation is# equivalent to:",
-    "review_kr": "# 위 방법과는 반대로, 샘플별 변화도 계산은 다음과 같습니다:"
-  },
-  {
-    "authority": "terms.kr",
-    "expected": [
-      "그래디언트"
-    ],
-    "file": "intermediate_source/per_sample_grads.py",
-    "hunks": [
-      "# - for each individual sample of the data, perform a forward and a backward#   pass to get an individual (per-sample) gradient.",
-      "# - 데이터의 각 샘플에 대해, 순전파와 역전파를 수행하여#   개별적인(샘플별) 변화도를 구합니다."
-    ],
-    "origin": "gradient",
-    "review_en": "# - for each individual sample of the data, perform a forward and a backward#   pass to get an individual (per-sample) gradient.",
-    "review_kr": "# - 데이터의 각 샘플에 대해, 순전파와 역전파를 수행하여#   개별적인(샘플별) 변화도를 구합니다."
-  },
-  {
-    "authority": "terms.kr",
-    "expected": [
-      "그래디언트"
-    ],
-    "file": "intermediate_source/per_sample_grads.py",
-    "hunks": [
-      "#  is the per-sample-grad for model.conv1.weight.#  is ; notice how there is one# gradient, per sample, in the batch for a total of 64.",
-      "#  는  에 대한 샘플별 변화도입니다.#  는  입니다. 배치 내부에 샘플당 하나씩,# 총 64개의 변화도가 있다는 점을 주목하시길 바랍니다."
-    ],
-    "origin": "gradient",
-    "review_en": "#  is the per-sample-grad for model.conv1.weight.#  is ; notice how there is one# gradient, per sample, in the batch for a total of 64.",
-    "review_kr": "#  는  에 대한 샘플별 변화도입니다.#  는  입니다. 배치 내부에 샘플당 하나씩,# 총 64개의 변화도가 있다는 점을 주목하시길 바랍니다."
-  },
-  {
-    "authority": "terms.kr",
-    "expected": [
-      "가중치",
-      "가중"
+      "가중치"
     ],
     "file": "intermediate_source/per_sample_grads.py",
     "hunks": [
@@ -100,9 +29,9 @@
     "review_kr": "#  는  에 대한 샘플별 변화도입니다.#  는  입니다. 배치 내부에 샘플당 하나씩,# 총 64개의 변화도가 있다는 점을 주목하시길 바랍니다."
   },
   {
-    "authority": "terms.kr",
+    "authority": "repo",
     "expected": [
-      "자동 미분"
+      "Autograd"
     ],
     "file": "intermediate_source/per_sample_grads.py",
     "hunks": [
@@ -114,45 +43,17 @@
     "review_kr": "[ERR] # 우선,  의 상태를 매개변수와 버퍼, 두 딕셔너리로 추출해야 합니다.# 일반적인 PyTorch autograd(예: Tensor.backward(), torch.autograd.grad)를# 사용하지 않을 것이기 때문입니다."
   },
   {
-    "authority": "terms.kr",
+    "authority": "repo",
     "expected": [
-      "텐서"
+      "메소드"
     ],
     "file": "intermediate_source/per_sample_grads.py",
     "hunks": [
-      "# First, let’s extract the state from  into two dictionaries,# parameters and buffers. We'll be detaching them because we won't use# regular PyTorch autograd (e.g. Tensor.backward(), torch.autograd.grad).",
-      "# 우선,  의 상태를 매개변수와 버퍼, 두 딕셔너리로 추출해야 합니다.# 일반적인 PyTorch autograd(예: Tensor.backward(), torch.autograd.grad)를# 사용하지 않을 것이기 때문입니다."
+      "# There are other optimized solutions (like in https://github.com/pytorch/opacus)# to computing per-sample-gradients in PyTorch that also perform better than# the naive method. But it’s cool that composing  and  give us a# nice speedup.",
+      "# PyTorch에는 이런 방법보다 성능이 뛰어난 다른 최적화 솔루션# (예: https://github.com/pytorch/opacus)들도 존재합니다.# 하지만  과  를 조합하는 것만으로 이 정도의 속도 향상을# 이룰 수 있다는 사실이 멋지지 않나요?"
     ],
-    "origin": "tensor",
-    "review_en": "# First, let’s extract the state from  into two dictionaries,# parameters and buffers. We'll be detaching them because we won't use# regular PyTorch autograd (e.g. Tensor.backward(), torch.autograd.grad).",
-    "review_kr": "[ERR] # 우선,  의 상태를 매개변수와 버퍼, 두 딕셔너리로 추출해야 합니다.# 일반적인 PyTorch autograd(예: Tensor.backward(), torch.autograd.grad)를# 사용하지 않을 것이기 때문입니다."
-  },
-  {
-    "authority": "terms.kr",
-    "expected": [
-      "그래디언트"
-    ],
-    "file": "intermediate_source/per_sample_grads.py",
-    "hunks": [
-      "# Now, let’s use the  transform to create a new function that computes# the gradient with respect to the first argument of # (i.e. the ).",
-      "# 이제,  변환을 사용해서  의 첫번째 인자인# 매개변수  에 대해 변화도를 측정하는 새로운 함수를 만들어 봅시다."
-    ],
-    "origin": "gradient",
-    "review_en": "# Now, let’s use the  transform to create a new function that computes# the gradient with respect to the first argument of # (i.e. the ).",
-    "review_kr": "# 이제,  변환을 사용해서  의 첫번째 인자인# 매개변수  에 대해 변화도를 측정하는 새로운 함수를 만들어 봅시다."
-  },
-  {
-    "authority": "terms.kr",
-    "expected": [
-      "그래디언트"
-    ],
-    "file": "intermediate_source/per_sample_grads.py",
-    "hunks": [
-      "# The  function computes the gradient for a single# (sample, target) pair. We can use  to get it to compute the gradient# over an entire batch of samples and targets. Note that#  because we wish to map  over# the 0th dimension of the data and targets, and use the same  and# buffers for each.",
-      "#  는 단일 (샘플, 목표 변수) 쌍에 대한 변화도를 계산하는 함수입니다.#  을 사용하면 전체 샘플 및 목표 변수들 배치에 대한 변화도를 알 수 있습니다.# 이때  로 설정했는데, 이는 데이터와 목표 변수의# 0번째 차원에 대해  를 매핑하고, 매개변수와 버퍼는# 각 샘플에 대해 똑같이 사용하기 위함입니다."
-    ],
-    "origin": "gradient",
-    "review_en": "# The  function computes the gradient for a single# (sample, target) pair. We can use  to get it to compute the gradient# over an entire batch of samples and targets. Note that#  because we wish to map  over# the 0th dimension of the data and targets, and use the same  and# buffers for each.",
-    "review_kr": "#  는 단일 (샘플, 목표 변수) 쌍에 대한 변화도를 계산하는 함수입니다.#  을 사용하면 전체 샘플 및 목표 변수들 배치에 대한 변화도를 알 수 있습니다.# 이때  로 설정했는데, 이는 데이터와 목표 변수의# 0번째 차원에 대해  를 매핑하고, 매개변수와 버퍼는# 각 샘플에 대해 똑같이 사용하기 위함입니다."
+    "origin": "method",
+    "review_en": "# There are other optimized solutions (like in https://github.com/pytorch/opacus)# to computing per-sample-gradients in PyTorch that also perform better than# the naive method. But it’s cool that composing  and  give us a# nice speedup.",
+    "review_kr": "# PyTorch에는 이런 방법보다 성능이 뛰어난 다른 최적화 솔루션# (예: https://github.com/pytorch/opacus)들도 존재합니다.# 하지만  과  를 조합하는 것만으로 이 정도의 속도 향상을# 이룰 수 있다는 사실이 멋지지 않나요?"
   }
 ]

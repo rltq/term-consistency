@@ -27,7 +27,13 @@ def _produce_unmatched(pr_id: int, monkeypatch, capsys) -> list:
     fixture_terms.sort(key=lambda x: len(x["term"]), reverse=True)
     monkeypatch.setattr(main, "load_terms", lambda *a, **kw: fixture_terms)
 
-    monkeypatch.setattr("sys.argv", ["main.py", "--pr", f"https://dummy/pull/{pr_id}"])
+    # 실제 github.com/PyTorchKorea/tutorials-kr URL 사용 — extract_repo_id 가
+    # 유효 repo_id 를 뽑아내 load_glossary 가 pytorch-kr override 를 반환.
+    # load_diff_text 는 위에서 monkeypatch 로 고정되어 네트워크 호출 없음.
+    monkeypatch.setattr(
+        "sys.argv",
+        ["main.py", "--pr", f"https://github.com/PyTorchKorea/tutorials-kr/pull/{pr_id}"],
+    )
 
     main.main()
     captured = capsys.readouterr()

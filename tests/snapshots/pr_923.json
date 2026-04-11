@@ -1,5 +1,19 @@
 [
   {
+    "authority": "repo",
+    "expected": [
+      "학습"
+    ],
+    "file": "beginner_source/introyt/tensorboardyt_tutorial.py",
+    "hunks": [
+      "# PyTorch model and training necessities",
+      "# PyTorch 모델과 훈련 필수 요소"
+    ],
+    "origin": "training",
+    "review_en": "# PyTorch model and training necessities",
+    "review_kr": "# PyTorch 모델과 훈련 필수 요소"
+  },
+  {
     "authority": "terms.kr",
     "expected": [
       "텐서보드"
@@ -56,6 +70,20 @@
     "review_kr": "[ERR] # 먼저, 데이터셋에서 TensorBoard로 샘플 이미지를 추가합니다:"
   },
   {
+    "authority": "repo",
+    "expected": [
+      "학습"
+    ],
+    "file": "beginner_source/introyt/tensorboardyt_tutorial.py",
+    "hunks": [
+      "# Store separate training and validations splits in ./data",
+      "# 훈련과 검증으로 분할하여 각각 ./data에 저장하기"
+    ],
+    "origin": "training",
+    "review_en": "# Store separate training and validations splits in ./data",
+    "review_kr": "# 훈련과 검증으로 분할하여 각각 ./data에 저장하기"
+  },
+  {
     "authority": "terms.kr",
     "expected": [
       "텐서보드"
@@ -82,6 +110,20 @@
     "origin": "tensorboard",
     "review_en": "# Default log_dir argument is \"runs\" - but it's good to be specific# torch.utils.tensorboard.SummaryWriter is imported above",
     "review_kr": "[ERR] # log_dir 인수 기본값은 \"runs\"입니다 - 하지만 구체적으로 정하는 것이 좋습니다.# 위에서 torch.utils.tensorboard.SummaryWriter를 가져왔습니다."
+  },
+  {
+    "authority": "repo",
+    "expected": [
+      "인자"
+    ],
+    "file": "beginner_source/introyt/tensorboardyt_tutorial.py",
+    "hunks": [
+      "# Default log_dir argument is \"runs\" - but it's good to be specific# torch.utils.tensorboard.SummaryWriter is imported above",
+      "# log_dir 인수 기본값은 \"runs\"입니다 - 하지만 구체적으로 정하는 것이 좋습니다.# 위에서 torch.utils.tensorboard.SummaryWriter를 가져왔습니다."
+    ],
+    "origin": "argument",
+    "review_en": "# Default log_dir argument is \"runs\" - but it's good to be specific# torch.utils.tensorboard.SummaryWriter is imported above",
+    "review_kr": "# log_dir 인수 기본값은 \"runs\"입니다 - 하지만 구체적으로 정하는 것이 좋습니다.# 위에서 torch.utils.tensorboard.SummaryWriter를 가져왔습니다."
   },
   {
     "authority": "terms.kr",
@@ -126,6 +168,20 @@
     "review_kr": "[ERR] # 만약 TensorBoard를 커맨드 라인에서 구동시켜# 그것을 새 브라우저 탭(보통 __)에서 열었다면,# IMAGES 탭에서 이미지 격자를 확인할 수 있을 것입니다."
   },
   {
+    "authority": "repo",
+    "expected": [
+      "학습"
+    ],
+    "file": "beginner_source/introyt/tensorboardyt_tutorial.py",
+    "hunks": [
+      "# Graphing Scalars to Visualize Training",
+      "# 훈련 시각화를 위한 스칼라 그래프 그리기"
+    ],
+    "origin": "training",
+    "review_en": "# Graphing Scalars to Visualize Training",
+    "review_kr": "# 훈련 시각화를 위한 스칼라 그래프 그리기"
+  },
+  {
     "authority": "terms.kr",
     "expected": [
       "학습 루프"
@@ -154,16 +210,44 @@
     "review_kr": "[ERR] # TensorBoard는 훈련 진행 과정과 효과를 추적하기에# 유용합니다. 아래에서 훈련 루프를 실행하고 몇몇 지표를 추적하며# TensorBoard에서 사용할 데이터를 저장할 것입니다."
   },
   {
-    "authority": "terms.kr",
+    "authority": "repo",
     "expected": [
-      "에포크"
+      "학습"
+    ],
+    "file": "beginner_source/introyt/tensorboardyt_tutorial.py",
+    "hunks": [
+      "# TensorBoard is useful for tracking the progress and efficacy of your# training. Below, we’ll run a training loop, track some metrics, and save# the data for TensorBoard’s consumption.",
+      "# TensorBoard는 훈련 진행 과정과 효과를 추적하기에# 유용합니다. 아래에서 훈련 루프를 실행하고 몇몇 지표를 추적하며# TensorBoard에서 사용할 데이터를 저장할 것입니다."
+    ],
+    "origin": "training",
+    "review_en": "# TensorBoard is useful for tracking the progress and efficacy of your# training. Below, we’ll run a training loop, track some metrics, and save# the data for TensorBoard’s consumption.",
+    "review_kr": "# TensorBoard는 훈련 진행 과정과 효과를 추적하기에# 유용합니다. 아래에서 훈련 루프를 실행하고 몇몇 지표를 추적하며# TensorBoard에서 사용할 데이터를 저장할 것입니다."
+  },
+  {
+    "authority": "repo",
+    "expected": [
+      "학습"
+    ],
+    "file": "beginner_source/introyt/tensorboardyt_tutorial.py",
+    "hunks": [
+      "# Let’s define a model to categorize our image tiles, and an optimizer and# loss function for training:",
+      "# 이미지 타일을 분류할 모델과 옵티마이저# 그리고 훈련의 손실 함수를 정의해 봅시다:"
+    ],
+    "origin": "training",
+    "review_en": "# Let’s define a model to categorize our image tiles, and an optimizer and# loss function for training:",
+    "review_kr": "# 이미지 타일을 분류할 모델과 옵티마이저# 그리고 훈련의 손실 함수를 정의해 봅시다:"
+  },
+  {
+    "authority": "repo",
+    "expected": [
+      "학습"
     ],
     "file": "beginner_source/introyt/tensorboardyt_tutorial.py",
     "hunks": [
       "# Now let’s train a single epoch, and evaluate the training vs. validation# set losses every 1000 batches:",
       "# 이제 단일 에폭을 훈련하고, 매 1000 배치마다 훈련 셋과 검증 셋의# 손실을 평가해 봅니다:"
     ],
-    "origin": "epoch",
+    "origin": "training",
     "review_en": "# Now let’s train a single epoch, and evaluate the training vs. validation# set losses every 1000 batches:",
     "review_kr": "# 이제 단일 에폭을 훈련하고, 매 1000 배치마다 훈련 셋과 검증 셋의# 손실을 평가해 봅니다:"
   },
@@ -180,6 +264,20 @@
     "origin": "training loop",
     "review_en": "# basic training loop",
     "review_kr": "# 기본 훈련 루프"
+  },
+  {
+    "authority": "repo",
+    "expected": [
+      "계층"
+    ],
+    "file": "beginner_source/introyt/tensorboardyt_tutorial.py",
+    "hunks": [
+      "# In evaluation mode some model specific operations can be omitted eg. dropout layer",
+      "# 평가 모드에서는 일부 모델의 특정 작업을 생략할 수 있습니다 예시: 드롭아웃 레이어"
+    ],
+    "origin": "layer",
+    "review_en": "# In evaluation mode some model specific operations can be omitted eg. dropout layer",
+    "review_kr": "# 평가 모드에서는 일부 모델의 특정 작업을 생략할 수 있습니다 예시: 드롭아웃 레이어"
   },
   {
     "authority": "terms.kr",
