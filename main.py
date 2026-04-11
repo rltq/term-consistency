@@ -9,6 +9,18 @@ from term_consistency.match import find_terms
 from term_consistency.format import format_findings
 
 
+def load_terms(term_kr_url: str, terms_file_path: str = "terms_all.json") -> list:
+    if not os.path.exists(terms_file_path):
+        all_terms = create_terms(term_kr_url)
+        with open(terms_file_path, "w") as f:
+            json.dump(all_terms, f, ensure_ascii=False)
+    else:
+        with open(terms_file_path, "r") as f:
+            all_terms = json.load(f)
+    all_terms.sort(key=lambda x: len(x["term"]), reverse=True)
+    return all_terms
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pr", type=str, dest="pr_url")
