@@ -77,11 +77,11 @@ json.dump(unmatched, sys.stdout, ensure_ascii=False, sort_keys=True, indent=2)
 
 ### 1단계 → 2단계 검증 절차
 
-1. 모듈 분리 *전*: 1단계 추출로 픽스처마다 스냅샷을 생성하여 commit (`test: capture pre-split snapshots`).
+1. 모듈 분리 *전*: 1단계 추출로 픽스처마다 스냅샷을 생성하여 commit (`test: 모듈 분리 전 스냅샷 박제`).
 2. 모듈 분리 작업 진행.
 3. 모듈 분리 *후*: 2단계 추출로 같은 픽스처에 대해 스냅샷을 재생성.
 4. diff 검증: 두 스냅샷이 일치해야 한다. 불일치 시 모듈 분리 작업 중 의도 외 변경 발생 — 멈추고 원인 분석.
-5. 일치 확인 후 commit (`test: switch to post-split snapshots`).
+5. 일치 확인 후 commit (`test: 모듈 분리 후 스냅샷으로 전환`).
 
 이 절차는 큰 리팩토링에서 동작 보존을 검증하는 표준 패턴이다. 다른 리팩토링 작업에도 같은 패턴을 적용할 수 있다.
 
@@ -97,7 +97,7 @@ json.dump(unmatched, sys.stdout, ensure_ascii=False, sort_keys=True, indent=2)
 4. **결과 분석.**
    - 통과: 의도 외 회귀가 없음. 단, 의도한 변경이 *있었어야* 한다면 (예: 매칭 로직 수정) 픽스처 갱신을 빼먹은 것 → 5번으로.
    - 실패: 다음 섹션의 의사결정 트리.
-5. **스냅샷 갱신 (필요 시).** 의도한 변경의 결과로 스냅샷이 바뀌어야 한다면, diff 를 사람 눈으로 검토 후 스냅샷 파일을 갱신. 코드 변경과 분리된 별도 commit: `test: update snapshot for <change>`.
+5. **스냅샷 갱신 (필요 시).** 의도한 변경의 결과로 스냅샷이 바뀌어야 한다면, diff 를 사람 눈으로 검토 후 스냅샷 파일을 갱신. 코드 변경과 분리된 별도 commit: `test: <변경 이름> 스냅샷 갱신`.
 
 ---
 
