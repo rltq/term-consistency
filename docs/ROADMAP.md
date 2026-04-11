@@ -10,10 +10,10 @@
 
 ## 현재 위치
 
-> **v0.2.0 진행 중 — 작업 1/2/3 완료, 작업 4-5 남음**
+> **v0.2.0 완료 — v0.3.0 작업 0 (유닛 테스트 레이어 보강) 대기**
 >
-> 완료: 모듈 분리 (`main.py` → `term_consistency/`) + 회귀 픽스처 4건 + post-split 회귀 테스트 + normalize_ko 대칭 복구 (#16)
-> 다음 작업: 작업 4 ([ERR] 비대칭, #10), 작업 5 (중복 탐지, #8)
+> v0.2 완료: 모듈 분리 (`main.py` → `term_consistency/`) + 회귀 픽스처 4건 + post-split 회귀 테스트 + normalize_ko 대칭 복구 (#16) + [ERR] 비대칭 수정 (#10) + 중복 탐지 수정 (#8) + `tests/test_match.py` 단위 테스트 seed
+> 다음 작업: v0.3.0 작업 0 — `find_terms` 분기 전체를 유닛 테스트로 커버 (override 도입 선결)
 
 이 줄은 마일스톤이 바뀔 때마다 갱신한다.
 
@@ -89,10 +89,10 @@
 
 ### Definition of Done
 
-- [ ] `main.py` 가 3개 모듈로 분리, 모듈 레벨 부수효과 없음 (`import` 가 깨끗함).
-- [ ] `tests/` 디렉토리에 회귀 픽스처 4건 이상.
-- [ ] 위 4건 픽스처에 대해 normalize_ko / [ERR] / 중복 탐지 3개 버그가 모두 수정된 출력으로 갱신됨.
-- [ ] 픽스처 단위 테스트가 CI 없이 로컬에서 한 줄 명령어로 통과함 (예: `uv run pytest tests/`).
+- [x] `main.py` 가 3개 모듈로 분리, 모듈 레벨 부수효과 없음 (`import` 가 깨끗함).
+- [x] `tests/` 디렉토리에 회귀 픽스처 4건 이상.
+- [x] 위 4건 픽스처에 대해 normalize_ko / [ERR] / 중복 탐지 3개 버그 수정이 반영됨 (normalize_ko · [ERR] 는 스냅샷 갱신으로, 중복 탐지는 스냅샷 회귀 0 + `tests/test_match.py` 단위 테스트 통과로 확증).
+- [x] 픽스처 단위 테스트가 CI 없이 로컬에서 한 줄 명령어로 통과함 (예: `uv run pytest tests/`).
 
 ### 위험과 조기 경보
 
@@ -115,6 +115,13 @@
 **목표.** 도구의 본래 정의의 절반 (= 레포별 용어집 override) 을 닫는다. SCOPE.md 의 **제외 7** 이 닫히는 마일스톤.
 
 ### 작업
+
+0. **유닛 테스트 레이어 보강** (v0.3 의 선결 요건)
+   - 아래 1-4 작업이 `find_terms` 의 매칭 결정 로직을 직접 건드리므로, 변경 안전성을 확보하기 위해 유닛 테스트 레이어를 먼저 깐다.
+   - 대상: `match.py` 만. `find_terms` 의 모든 분기 (matched / brace-matched / [ERR] / unmatched / 중복 탐지 skip) + `normalize_ko` 와 `strip_text` 의 경계 케이스.
+   - 제외: `parse.py` (4건 스냅샷이 서로 다른 파일 구조를 커버하므로 간접 보호 두터움), `io.py` 의 네트워크 함수, `format.py` (현재 dead — `main.py:9` import 만 있고 호출 없음).
+   - seed: `tests/test_match.py` 가 #8 fix 시 이미 추가됨 (중복 탐지 4 케이스). 이 위에서 나머지 분기 케이스를 확장.
+   - 논리: 작업 1-2 의 "pre-split 스냅샷 → 모듈 분리" 패턴과 동일 구조. 변경이 쌓이기 전에 검증 단위를 먼저 깔아두는 점진적 검증 원칙.
 
 1. **레포별 용어집 어댑터 도입**
    - pytorch-kr 의 자체 용어집 (마크다운 flat dict) 을 파싱하는 어댑터 작성.
