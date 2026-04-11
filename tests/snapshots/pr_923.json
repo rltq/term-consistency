@@ -170,19 +170,6 @@
   },
   {
     "expected": [
-      "평가 모드"
-    ],
-    "file": "beginner_source/introyt/tensorboardyt_tutorial.py",
-    "hunks": [
-      "# In evaluation mode some model specific operations can be omitted eg. dropout layer",
-      "# 평가 모드에서는 일부 모델의 특정 작업을 생략할 수 있습니다 예시: 드롭아웃 레이어"
-    ],
-    "origin": "evaluation mode",
-    "review_en": "# In evaluation mode some model specific operations can be omitted eg. dropout layer",
-    "review_kr": "# 평가 모드에서는 일부 모델의 특정 작업을 생략할 수 있습니다 예시: 드롭아웃 레이어"
-  },
-  {
-    "expected": [
       "텐서보드"
     ],
     "file": "beginner_source/introyt/tensorboardyt_tutorial.py",
