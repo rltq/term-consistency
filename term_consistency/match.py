@@ -48,12 +48,18 @@ def find_terms(
                     for m in meanings:
                         allowed.extend(m.get("synonyms", []))
                 allowed_normalized = [normalize_ko(k) for k in allowed]
+                # 권위 출처 (repo override / terms.kr). glossary.merge_lookups 가
+                # 각 meaning 에 _authority 태그를 부여하며, 한 term 의 meanings
+                # 는 머지 로직상 동일 source 에서 오므로 meanings[0] 대표값으로
+                # 충분. 태그 없는 레거시 입력은 기본값 "terms.kr" 로 해석.
+                authority = meanings[0].get("_authority", "terms.kr")
                 if brace_pattern.search(kr_text):
                     matched.append(
                         {
                             "file": diff["file"],
                             "origin": term,
                             "expected": allowed,
+                            "authority": authority,
                             "matched(brace)": (en_text, kr_text),
                         }
                     )
@@ -63,6 +69,7 @@ def find_terms(
                             "file": diff["file"],
                             "origin": term,
                             "expected": allowed,
+                            "authority": authority,
                             "matched": (en_text, kr_text),
                         }
                     )
@@ -94,6 +101,7 @@ def find_terms(
                             "file": diff["file"],
                             "origin": term,
                             "expected": allowed,
+                            "authority": authority,
                             "review_en": en_review,
                             "review_kr": kr_review,
                             "hunks": (en_text, kr_text),
